@@ -1,0 +1,71 @@
+---
+layout: post
+title:  "1. 운영체제"
+subtitle: ""
+date:   2019-03-30 20:38:27 +0900
+categories: cs
+tags : os
+comments: true
+---
+###  운영체제?
+- 하드웨어와 애플리케이션 사이에 있는 시스템 소프트웨어
+- 목적?
+  - 사용을 편하게 - Low-level 하드웨어를 조작할 수 있는 간단한, 통합된 인터페이스 제공
+  - 공유 - 하드웨어 자원을 여러 프로세스/사용자가 공유할 수 있도록
+  - 보호 - 하드웨어를 잘못된 사용으로부터 보호함
+- Key Interfaces
+  - ISA (Instruction Set Architecture) : x86, ARM, MIPS (Machine Language)
+    - SW와  HW 사이의 인터페이스를 정의
+  - ABI (Application Binary Interface)
+    - 시스템콜 인터페이스를 정의함
+  - API (Application programming interface)
+- CISC (Compex Instruction Set Computer)
+  - 복잡한 명령어 집합
+  - 명령어의 수가 많음
+  - 80년대 중반까지 사용 (x86, VAX)
+- RISC (Reduced Instruction Set Computer)
+  - 간단한 명령어 집합
+  - 적은 수의 명령어
+  - 80년대 이후의 대부분의 아키텍처에 적용
+    - ex) PowerPC, Alpha, SPARC,  IA64, ARM
+- Revolution of OS (순서대로)
+  - Serial Processing
+    - Turing Machine (1936)
+      - 새로운 수학적인 컴퓨팅 모델
+      - 현대 컴퓨터의 이론적인 배경
+      - 현존하는 모든 컴퓨터는 튜링 머신의 Subset
+    - Bombe(1940)
+      - 독일 에니그마를 해독하기 위해 만들어진 최초의 전자식 컴퓨터
+    - Colossus(1943)
+      - 1세대 Programmable Digital Computer (Hard-wired Programming)
+    - ENIAC (Electronic Numerical Integrator And Computer)
+      - 탄도 계산을 위해서 만들어짐
+  - Simple Batch Systems
+    - Monitor
+      - 사용자가 작업(job)을 카드 또는 테이프에 작성한 후 제출 - 순서대로 처리
+      - 모니터란 프로그램은 메모리에 상주, 인풋을 하나씩 처리함
+      - 프로세서에 비해 입출력이 굉장히 느리기 때문에 idle한 상태가 오래 지속됨 - 비효율
+  - Multiprogrammed Batch Systems
+    - I/O를 기다리지 않고 그 시간에 다른 작업(job)을 처리함
+    - Processor Utilization이 좋음
+    - 자신의 작업을 처리하기 위해 이전의 작업을 기다려야 함
+  - Time Sharing Systems
+    - 여러 사용자가 동시에 하나의 컴퓨터를 사용 가능
+    - 각 사용자가 기다리는 response time이 줄어듬 (Minimizing Response time is more important than maximizing throughput )
+    - Time slice / Round Robin
+    - Context Switching
+ 
+
+### Competing Processes
+- Sharing a global resources? 다음 문제가 발생 가능
+  - Need for mutual exclusion
+  - Deadlock
+  - Starvation
+- Mutual Exclusion?
+  - 상호 배제
+  - 한번에 한 프로세스만 리소스를 사용하도록 제한하는 것
+  - Critical Section을 한 프로세스만 진입하도록 보장해야 함
+  - 데커알고리즘
+  - 간단하게 처리하는 방법?
+    - 임계 영역에 들어갈 때 interrupt를 disable, 나올 때 enable
+ 
