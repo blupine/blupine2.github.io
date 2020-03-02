@@ -1,0 +1,125 @@
+---
+layout: post
+title:  "9. mistake"
+subtitle: ""
+date:   2018-10-07 18:14:06 +0900
+categories: security
+tags : pwnable
+---
+
+
+![1]({{"/assets/img/security/pwnable/9/1.png" | absolute_url}})
+
+힌트가 연산자 우선순위란다.
+
+들어가보자.
+
+<br>
+
+![2]({{"/assets/img/security/pwnable/9/2.png" | absolute_url}})
+
+이전에 풀었던 문제와 유형은 같은 것 같다.
+
+mistake를 실행해서 flag를 출력시키기
+
+`mistake.c`를 살펴보자
+
+
+<br>
+
+![3]({{"/assets/img/security/pwnable/9/3.png" | absolute_url}})
+
+password 파일을 열고 `PW_LEN(10bytes)`만큼 읽어온다.
+
+그리고 사용자한트 password를 입력받고 이 값의 각 문자를 1과 xor 연산을 한 결과를
+
+password 파일에서 읽은 값과 비교하고 일치하면 플래그를 출력한다.
+
+처음엔 코드상으로 뭐가 문제인지 모르겠어서 일단 실행을 해봤다.
+
+<br>
+![4]({{"/assets/img/security/pwnable/9/4.png" | absolute_url}})
+
+뭘까..  `do not bruteforce...`가 출력된 이후에 사용자의 입력이 들어가는 부분이 있다..
+
+입력을 한 이후에 `input password :`가 출력된다.
+
+다시 코드를 보자
+
+<br>
+![5]({{"/assets/img/security/pwnable/9/5.png" | absolute_url}})
+
+자세히 살펴보니 네모 부분에서 문제가 있었는데..
+
+힌트에서 언급한 연산 우선순위에 의해서 발생하는 문제였다
+
+<br>
+
+![6]({{"/assets/img/security/pwnable/9/6.png" | absolute_url}})
+
+이부분을 보면 개발자의 의도는
+
+open 함수가 반환한 `fd(file descriptor)`를 fd 변수에 담을 생각이었을 것이다.
+
+open 함수는 열기에 실패할 경우 -1을 반환하기 때문에  
+
+` < 0 ` 이 부분으로 예외처리를 하려고 했을 것인데..
+
+연산 우선순위를 고려하면 이렇게 하면 안된다..
+
+
+<br>
+![7]({{"/assets/img/security/pwnable/9/7.png" | absolute_url}})
+
+연산 우선순위다.
+
+`할당(assignment)` 연산의 우선순위는 17위다. 반면에 비교 연산의 우선순위는 9위.
+
+따라서 할당과 비교가 같이 오면 비교를 먼저 한다는 뜻이다.
+
+<br>
+![8]({{"/assets/img/security/pwnable/9/9.png" | absolute_url}})
+
+따라서 네모친 부분이 먼저 실행되는 것이고
+
+반환된 password 파일에 대한 fd의 값은 실패하지 않을 경우는 양수가 반환되므로 당연히 저 부분은 false.
+
+비교 연산은 True면 1, False면 0을 반환하므로
+
+fd에는 결국 0이 할당되게 되는 것이다.
+
+그럼 fd는 표준 입력과 같게 되고
+
+<br>
+![9]({{"/assets/img/security/pwnable/9/9.png" | absolute_url}})
+
+여기서 fd로부터 10 글자 읽어오는 구문은
+
+표준 입력으로 10 글자를 읽어오는 것이다.
+
+따라서 우리가 입력한 10 글자의 문자와
+
+이후 scanf로 입력하는 password의 각 문자를 xor 1 한 값과 일치하면 플래그가 출력되는 것이다.
+
+<br>
+![10]({{"/assets/img/security/pwnable/9/10.png" | absolute_url}})
+
+---------
+
+### pwntools
+
+{% highlight python %}
+from pwn import *
+ 
+id   = 'mistake'
+host = 'pwnable.kr'
+port = 2222
+pw   = 'guest'
+s = ssh(id, host, port=port, password=pw)
+ 
+res = s.run('./mistake')
+res.sendline('1111111111')
+res.recvuntil(':')
+res.sendline('0000000000')
+res.interactive() 
+{% endhighlight %}

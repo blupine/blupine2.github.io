@@ -1,0 +1,163 @@
+---
+layout: post
+title:  "16. otp"
+subtitle: ""
+date:   2018-12-15 14:26:39 +0900
+categories: security
+tags : pwnable
+---
+
+
+![1]({{"/assets/img/security/pwnable/16/1.png" | absolute_url}})
+
+bruteforce는 하지 말라는게 힌트다.
+
+삽질을 굉장히 많이했고 도저히 모르겠어서 결국 검색을 통해 푼 문제다.
+
+<br>
+
+![2]({{"/assets/img/security/pwnable/16/2.png" | absolute_url}})
+<br>
+{% highlight c %}
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <fcntl.h>
+ 
+int main(int argc, char* argv[]){
+        char fname[128];
+        unsigned long long otp[2];
+ 
+        if(argc!=2){
+                printf("usage : ./otp [passcode]\n");
+                return 0;
+        }
+ 
+        int fd = open("/dev/urandom", O_RDONLY);
+        if(fd==-1) exit(-1);
+ 
+        if(read(fd, otp, 16)!=16) exit(-1);
+        close(fd);
+ 
+        sprintf(fname, "/tmp/%llu", otp[0]);
+        FILE* fp = fopen(fname, "w");
+        if(fp==NULL){ exit(-1); }
+        fwrite(&otp[1], 8, 1, fp);
+        fclose(fp);
+ 
+        printf("OTP generated.\n");
+ 
+        unsigned long long passcode=0;
+        FILE* fp2 = fopen(fname, "r");
+        if(fp2==NULL){ exit(-1); }
+        fread(&passcode, 8, 1, fp2);
+        fclose(fp2);
+ 
+        if(strtoul(argv[1], 0, 16) == passcode){
+                printf("Congratz!\n");
+                system("/bin/cat flag");
+        }
+        else{
+                printf("OTP mismatch\n");
+        }
+ 
+        unlink(fname);
+        return 0;
+}
+
+{% endhighlight %}
+<br>
+<br>
+
+문제의 otp 바이너리의 소스코드이다.
+
+`passcode`를 입력하고 `/dev/urandom`을 통해 `16바이트`의 난수를 읽어오고, 앞의 `8바이트`는 파일의 이름으로 임시 파일을 생성,
+
+뒤의 `8바이트`는 생성한 임시 파일에 쓰고 이걸 후에 다시 읽어와서`passcode` 사용자의 입력`argv[1]`과 비교한다.
+
+<br>
+
+![3]({{"/assets/img/security/pwnable/16/3.png" | absolute_url}})
+
+`/tmp` 디렉토리에  코드를 복사하여 이런저런 테스트를 해봤다.
+
+도저히 모르겠어서 검색해보니 `ulimit`과 관련된 문제라는 힌트가 있었다.
+
+
+### ulimit?
+user가 생성할 수 있는 resource의 제한을 두는 것을 의미하는데
+
+해당 문제에서는 `120000`으로 설정되어있었다.
+
+
+<br>
+![4]({{"/assets/img/security/pwnable/16/4.png" | absolute_url}})
+
+즉, user가  해당 쉘에서 자식 프로세스로 생성되는 프로세스가 생성할 수 있는 파일의 크기가 최대 `120000`으로 제한한다는 것인데
+
+이걸 user가 변경할 수 있는 것 같다.
+
+만약 user가 이 제한을 0으로 변경하면 실행되는 자식 프로세스는 모두 파일을 생성할 수 없게된다.
+
+이 문제는 이 제한을 변경해서 otp 프로세스가 파일을 생성하지 못하게 하는 문제다.
+
+<br>
+ulimit을 0으로 설정하면 다음 코드에서 문제가 발생할 것이다.
+
+
+<br>
+![5]({{"/assets/img/security/pwnable/16/5.png" | absolute_url}})
+
+파일을 생성하고 파일을 쓰는데, 쓸 수 있는 파일의 크기가 0으로 제한되기 때문에 파일에는 아무 값도 쓸 수 없게된다.
+
+이 때 다음과 같이 파일의 크기가 커서 생성이 못하는 의미를 갖는 `27번 errno`이 설정된다. 
+
+{% highlight c %}
+#define EFBIG       27  /* File too large */
+{% endhighlight %}
+
+<br>
+
+![6]({{"/assets/img/security/pwnable/16/6.png" | absolute_url}})
+
+그럼 이 부분에서 문제가 생기는데, 원래 파일에서 읽어야 할 `passcode`를 파일에 읽을 데이터가 없기 때문에 읽을 수 없게된다.
+
+`passcode`는 여기서 `null`이 되고 이후 비교문을 보면
+
+
+<br>
+
+![7]({{"/assets/img/security/pwnable/16/7.png" | absolute_url}})
+
+이 부분에서 `strtoul` 함수의 반환값이 `0`이 되어야 한다.
+
+즉 `argv[1]`에 아무 값도 전달하지 않아야 한다는 것인데 터미널에서 실행시키는 방법으론 방법이 생각나지 않는다.
+
+그래서 파이썬 스크립트로 `subprocess`로 실행시키는 방법을 사용했다.
+
+{% highlight python %}
+import subprocess
+subprocess.call(['/home/otp/otp', ''])
+{% endhighlight %}
+
+<br>
+
+이렇게 인자를 전달하면 `argv[1]`에는 `null`이 들어가게 된다.
+
+`/tmp` 디렉토리에 해당 파이썬 스크립트를 작성하고 다음과 같이 `ulimit`을 `0`으로 설정한다.
+
+<br>
+
+![8]({{"/assets/img/security/pwnable/16/8.png" | absolute_url}})
+
+이제 파이썬 스크립트를 실행하면..
+
+<br>
+![9]({{"/assets/img/security/pwnable/16/9.png" | absolute_url}})
+
+플래그가 출력된다.
+
+{% highlight bash %}
+Darn... I always forget to check the return value of fclose() :(
+{% endhighlight %}
+

