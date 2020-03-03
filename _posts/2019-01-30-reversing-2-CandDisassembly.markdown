@@ -38,7 +38,7 @@ tags : reversing
    - ![4]({{"/assets/img/security/reversing/2/4.png" | absolute_url}})
 
 1. __fastcall
-   - ![5]({{"/assets/img/security/reversing/2/5.jpeg" | absolute_url}})
+   - ![5]({{"/assets/img/security/reversing/2/5.png" | absolute_url}})
    -  sub esp, 0xC 명령어로 스택 공간을 확보하고 edx, ecx 레지스터에 있는 값을 이용한다.
    -  함수의 호출부를 봐도 함수를 호출하기 직전 파라미터를 edx, ecx 레지스터에 넣는다.
     - __fastcall 호출 규약은 파라미터가 2개 이하일 경우에 사용이 가능하며 파라미터를 레지스터를 이용하여 전달한다. (빠름)
