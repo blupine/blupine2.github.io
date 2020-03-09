@@ -13,7 +13,7 @@ tags : android
 
 이유를 찾아보니 다음과 같은 글을 찾아볼 수 있었다.
 
-https://stackoverflow.com/questions/3591784/views-getwidth-and-getheight-returns-0/15578844
+### [stackoverflow]({{"https://stackoverflow.com/questions/3591784/views-getwidth-and-getheight-returns-0/15578844"}})
 
 내용을 요약하자면,
 
