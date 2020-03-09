@@ -119,23 +119,111 @@ comments: true
       - busy waiting
         - 자원이 release될 때까지 test-and-set 반복해야 함
       - deadlock and stravation 가능
-
-    - compare-and-swap ? 
-      - 특정 메모리의 값을 테스트하고, 참일 경우 다른 값으로 변경
+    - 장점?
+      - 프로세스, 프로세서의 개수와 상관 없이 크리티컬 섹션 구현 가능
       - 
-        {{% highlight c %}}
-          while(ture){
-            while(compare_and_swap(&bolt, 0, 1) == 1)
-              /* do nothing */
-            /* critical section */
-            bolt = 0;
-            /* remainder */
-          }
-        {{end}}
 
 
+- compare-and-swap ? 
+  - 특정 메모리의 값을 테스트하고, 참일 경우 다른 값으로 변경
 
+  {% highlight c %}
+    /* compare-and-swap 예시 */
+    while(ture){
+      while(compare_and_swap(&bolt, 0, 1) == 1){
+        /* bold == 0을 참조한 프로세서가 1로 바꾸고 해당 루프를 빠져나옴 */
+        /* do nothing */
+      }
+      /* critical section */
+      bolt = 0;
+      /* remainder */
+    }
+  {% endhighlight %}
+    
+- exchange instruction
+  - 메모리의 값을 자신이 전달한 레지스터의 값으로 변경함
+  {% highlight c %}
+    /* exchange 예시 */
+    void exchange(int * register, int * memory)
+    {
+      int temp;
+      temp = *memory;
+      *memory = *register;
+      *register = temp;
+    }
+    
+    ...
 
+    int keyi = 1;
+    while(true){
+      do exchange(&keyi, &bolt)
+      while(keyi != 0);
+      /* critical section */
+      bolt = 0;
+      /* remainder */
+    }
 
+  {% endhighlight %}
 
+-------------
 
+### Semaphore
+- 소프트웨어적인 메커니즘
+- 공유 자원 접근을 컨트롤 하는 변수 (공유 가능한 자원의 개수로 초기화됨)
+- 두 가지 operation
+  - V operation (also known as "signal")
+    - increment the semaphore (release)
+  - P operation (also known as "wait")
+    - decrement the semaphore (allocation)
+- 두 가지 종류
+  - binary semaphore
+    - 0 또는 1의 값을 가짐 (locked / unlocked)
+  - counting semaphore
+    - resource count (자원의 개수)
+- strong semaphore
+  - 가장 오래 block된 프로세스를 큐에서 꺼냄
+- weak semaphore
+  - 순서 없이 아무나 wake up 시킬 수 있는 것
+{% highlight c %}
+/* counting semaphore example */
+struct semaphore{
+  int count;
+  queueType queue;
+};
+void semWait(semaphore s) /* P operation */
+{
+  s.count--;
+  if(s.count < 0){
+    /* 자원이 없을 때 대기열로 들어감 */
+    /* place this process in s.queue */
+    /* block this process */
+  }
+}
+void semSignal(semaphore s) /* V operation */
+{
+  s.count++;
+  if(s.count <= 0){
+    /* 자원을 release할 때 대기중인 프로세스가 있을 경우 */
+    /* remove a process P from s.queue */
+    /* place process P on ready list */
+  }
+}
+{% endhighlight %}
+
+-----------
+
+{% highlight c %}
+/* critical section with semaphore example */
+const int n = /* number of processes */;
+semaphore s = 1;
+void P(int i)
+{
+  while(true){
+    semWait(s);
+    /* critical section */
+    semSignal(s);
+    /* remainder */
+  }
+}
+
+{% endhighlight %}
