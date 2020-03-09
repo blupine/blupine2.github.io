@@ -25,7 +25,7 @@ UI가 그려지는 시점에 특정 작업을 처리할 수 있다.
 
 `ViewTreeObserver`는 view tree의 변화가 있을 때 리스너를 등록해서 작업을 처리할 수 있다. 
 
-그중에서 내가 필요한 리스너는 view가 다 그려진 시점에 호출되는 `OnGlobalLayoutListener`이다.
+그중에서 내가 필요한 리스너는 view가 다 그려진 시점에 호출되는 `OnGlobalLayoutListener`이다.w
 
 #### 리스너 등록
 

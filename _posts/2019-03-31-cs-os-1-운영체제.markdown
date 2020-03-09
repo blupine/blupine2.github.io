@@ -55,17 +55,3 @@ comments: true
     - Time slice / Round Robin
     - Context Switching
  
-
-### Competing Processes
-- Sharing a global resources? 다음 문제가 발생 가능
-  - Need for mutual exclusion
-  - Deadlock
-  - Starvation
-- Mutual Exclusion?
-  - 상호 배제
-  - 한번에 한 프로세스만 리소스를 사용하도록 제한하는 것
-  - Critical Section을 한 프로세스만 진입하도록 보장해야 함
-  - 데커알고리즘
-  - 간단하게 처리하는 방법?
-    - 임계 영역에 들어갈 때 interrupt를 disable, 나올 때 enable
- 
