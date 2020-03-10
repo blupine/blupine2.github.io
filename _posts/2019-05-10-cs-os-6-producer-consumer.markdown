@@ -277,5 +277,5 @@ void consumer()
     - 프로세스가 `src`로부터 `msg`를 받길 기다림
   - `sender`와 `receiver`는 blocking이 될수도, nonblocking이 될수도 있음
     - blocking send / blocking receive (rendezvous - 둘 다 기다림)
-    - nonblocking send, blocking receive(가장 일반적임)
+    - nonblocking send, blocking receive (가장 일반적임)
     - nonblocking send, nonblocking reveive
