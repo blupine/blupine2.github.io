@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[Android] CanvasView 구현하기 (1)"
+title:  "[Android] CanvasView 구현하기 (1) - 기본적인 그림판 구현"
 subtitle: "CanvasView/DrawView/안드로이드 그림판"
 date:   2019-12-17 23:52:23 +0900
 categories: dev
