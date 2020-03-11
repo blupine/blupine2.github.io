@@ -11,7 +11,7 @@ tags : android
 
 Touch Event가 발생할 때마다 좌표 값을 읽어와서 Path를 이어주는 방식으로 구현하니 다음과 같이 직선적으로 이어진다는 문제가 있었다.
 
-![1]({{"assets/img/android/3/1.png" | absolute_url}})
+![1]({{"assets/img/dev/android/3/1.png" | absolute_url}})
 
 빠르게 획을 그리게 되면 중간에 터치 이벤트 사이에 많은 공간이 생기게 되고 그만큼 직선적으로 표현되기 때문에 이런 문제가 발생한다.
 
@@ -33,7 +33,7 @@ Touch Event가 발생할 때마다 좌표 값을 읽어와서 Path를 이어주�
 
 <br>
 
-![2]({{"assets/img/android/3/2.png" | absolute_url}})
+![2]({{"assets/img/dev/android/3/2.png" | absolute_url}})
 
 위와 같이 위의 메소드들을 이용해서 이전의 터치 이벤트 좌표 값을 읽어올 수 있었고, 추가적으로 Path를 이어줄 수 있었다.
 
@@ -42,6 +42,6 @@ Touch Event가 발생할 때마다 좌표 값을 읽어와서 Path를 이어주�
 <br>
 
 
-![3]({{"assets/img/android/3/3.png" | absolute_url}})
+![3]({{"assets/img/dev/android/3/3.png" | absolute_url}})
 
 다음 포스팅에선 위의 `SignatureView`를 구현하신 블로거 분의 글을 참고해서 필압과 획 속도?를 캔버스에 반영할 수 있도록 구현해보자..
