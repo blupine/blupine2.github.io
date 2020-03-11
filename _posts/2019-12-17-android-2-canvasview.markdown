@@ -9,7 +9,7 @@ tags : android
 
 안드로이드 CanvasView 또는 DrawView라고도 부르는 Custom view를 구현하고 있다.
 
-기본적으로 canvas, path를 활용해서 구현할 수 있고 추후 좀 더 완전히 구현하기 위해선 bitmap을 활용해아야 할 것 같다.
+기본적으로 canvas, path, bitmap을 활용해서 구현할 수 있다.
 
 단순히 canvas만 담을 뷰를 만들고 끝마칠 것이 아니라 추후 color picker나 penstyle picker같은 추가 기능을 위해서는 여러 view를 더 보여줄 필요가 있을 것 같아서 FrameLayout을 상속받는 CustomLayout 형태로 구현했다.
 
@@ -87,5 +87,5 @@ Canvas의 크기를 설정해주기 위해서 View의 크기를 받아와야 했
 
 해당 클래스는 한 획이 그려질 때마다 인스턴스화 되며, 획에 대한 path 정보와, paint 정보를 가지도록 했다.
 
-현재 구현은 프로토타입 수준이기 때문에 여러 부분을 신경쓰지 못했고, paint 객체에 대한 hard copy가 아닌 점이 문제가 될 수도 있기 떄문에 추후 반영해야 한다.
+현재 구현은 프로토타입 수준이기 때문에 여러 부분을 신경쓰지 못했고, paint 객체에 대한 deep copy가 아닌 점이 문제가 될 수도 있기 떄문에 추후 반영해야 한다.
 
