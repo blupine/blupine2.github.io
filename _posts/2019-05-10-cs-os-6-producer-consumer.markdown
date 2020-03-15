@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "6. Producer/Consumer problem"
+title:  "6. Producer/Consumer problem (1) - semaphore/monitor"
 subtitle: "semaphore/monitor/message passing/producer-consumer"
 date:   2019-05-10 17:53:14 +0900
 categories: cs
@@ -264,18 +264,4 @@ void consumer()
 
 {% endhighlight %}
 
-
 ----------------------
-
-#### Message passing
-- 가장 일반적이고 쉬운 방법
-- Mutual exclusion, Synchroniztion 뿐만 아닌 Communication 또한 가능
-- 실제 동작?
-  - `send(des, msg)`
-    - 프로세스가 `des` 프로세스에게 `msg`를 보냄 
-  - `receive(src, msg)`
-    - 프로세스가 `src`로부터 `msg`를 받길 기다림
-  - `sender`와 `receiver`는 blocking이 될수도, nonblocking이 될수도 있음
-    - blocking send / blocking receive (rendezvous - 둘 다 기다림)
-    - nonblocking send, blocking receive (가장 일반적임)
-    - nonblocking send, nonblocking reveive
