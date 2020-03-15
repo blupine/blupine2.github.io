@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "7. Producer/Consumer problem (2)"
+title:  "7. Producer/Consumer problem (2) - message passing"
 subtitle: "semaphore/monitor/message passing/producer-consumer"
 date:   2019-05-15 19:14:07 +0900
 categories: cs

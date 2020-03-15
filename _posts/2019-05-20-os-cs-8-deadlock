@@ -1,0 +1,11 @@
+---
+layout: post
+title:  "8. Concurrency : Deadlock and Starvation"
+subtitle: "deadlock/starvation"
+date:   2019-05-20 22:55:07 +0900
+categories: cs
+tags : os
+comments: true
+---
+
+### Deadlock
