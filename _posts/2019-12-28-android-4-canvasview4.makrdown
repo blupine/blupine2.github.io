@@ -35,6 +35,10 @@ Path 클래스 인스턴스에 넓이 정보`(width)`를 포함시킬 수 있도
 이후 이전의 페인트 인스턴스의 넓이를 복원해준다.
 
 <br>
+
+![4]({{"assets/img/dev/android/4/4.jpg" | absolute_url}})
+
+<br>
 <br>
 
 베지어 곡선을 구현하고, 부드럽게 처리하는 과정에서 많은 시간이 걸렸지만, **[INKredible]({{"https://play.google.com/store/apps/details?id=com.viettran.INKredible&hl=ko"}})**이라는 상용 앱에서도 베지어 곡선을 통한 필기 보정을 했다는 점에서, 구현만 잘 해준다면 충분히 효과를 볼 수 있을 것 같다.
