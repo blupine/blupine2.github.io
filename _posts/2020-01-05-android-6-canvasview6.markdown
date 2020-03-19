@@ -21,7 +21,7 @@ tags : android
 
 우선 이전에 캔버스를 확대, 축소, 좌표 변환을 했던 코드는 다음과 같다.
 
-{% highlgiht java %}
+{% highlight java %}
     @Override
     public boolean onScale(ScaleGestureDetector detector) {
         Matrix transformationMatrix = new Matrix();
@@ -49,7 +49,7 @@ tags : android
 
 위 변환 코드에서 원점`(0, 0)`이 어느 좌표로 전환되는지 계산하면 다음과 같다.
 
-{% highlgiht java %}
+{% highlight java %}
     float afterX = -1 * focusX * scaleFactor + focusX + focusShiftX;
     float afterX = -1 * focusY * scaleFactor + focusY + focusShiftY;
 {% endhighlight %}
@@ -61,7 +61,7 @@ tags : android
 --------
 #### 최종 코드
 
-{% highlgiht java %}
+{% highlight java %}
             @Override
             public boolean onScale(ScaleGestureDetector detector) {
                 final float scaleFactor = detector.getScaleFactor();
@@ -97,8 +97,8 @@ tags : android
                 invalidate();
                 return true;
             }
-
-
 {% endhighlight %}
+
+----------------------
 
 ![2]({{"assets/img/dev/android/5/2.gif" | absolute_url}})
