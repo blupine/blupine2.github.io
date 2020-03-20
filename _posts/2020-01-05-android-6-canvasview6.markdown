@@ -13,7 +13,7 @@ tags : android
 
 일단 뭐가 문제가 되는지 보면
 
-![1]({{"assets/img/dev/android/6/1.gif" | absoulte_url}})
+![1]({{"assets/img/dev/android/6/1.gif" | absolute_url}})
 
 축소를 할 때 캔버스의 크기를 벗어난 영역가지 보이게 축소가 되어서 캔버스 영역을 벗어나는 것이다.
 
@@ -101,4 +101,4 @@ tags : android
 
 ----------------------
 
-![2]({{"assets/img/dev/android/5/2.gif" | absolute_url}})
+![2]({{"assets/img/dev/android/6/2.gif" | absolute_url}})
