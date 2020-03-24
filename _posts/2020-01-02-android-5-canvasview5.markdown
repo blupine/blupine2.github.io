@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[Android] CanvasView 구현하기 (4) - Pinch-Zoom/Out 구현하기"
+title:  "[Android] CanvasView 구현하기 (4) - Pinch-Zoom/Out 구현하기(1)"
 subtitle: "CanvasView/DrawView/안드로이드 그림판/캔버스 확대/"
 date:   2020-01-02 19:24:23 +0900
 categories: dev
