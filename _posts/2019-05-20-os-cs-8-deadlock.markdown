@@ -213,3 +213,5 @@ void philosopher[k = 0 to 4]
   - 실제 구현은 circular buffer, producer-consumer 모델
   - ex) `ls | more`, `ps | sort` etc
 - Messages
+  - 유닉스는 메시지 패싱을 지원하기 위해 `msgsnd`, `msgrcv` 시스템콜을 지원함
+  - 메시지는 바이트들의 `block`
