@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "[Android] CanvasView 구현하기 (6) - 지우개 구현(1)"
+title:  "[Android] CanvasView 구현하기 (6) - 지우개 구현(1) - 레이아웃에 지우개 ImageView 추가하기"
 subtitle: "FrameLayout에 ImageView 추가하기/"
 date:   2020-01-15 23:11:23 +0900
 categories: dev
