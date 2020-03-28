@@ -81,6 +81,7 @@ public class CanvasView extends FrameLayout implements View.OnTouchListener {
                     break;
                 }
                 ...
+        }
 }
 {% endhighlight %}
 
