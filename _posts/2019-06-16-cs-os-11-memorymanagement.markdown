@@ -8,7 +8,7 @@ tags : os
 comments: true
 ---
 
-###Memory Management
+## Memory Management
 
 #### Logical address(virtual)
 - 프로세스마다 독립적으로 가지는 주소 공간
@@ -182,46 +182,138 @@ comments: true
               = 2 + \epsilon - \alpha$$
             
 
-**Paging Example**
-![5]({{"assets/img/cs/os/11/5.png" | absolute_url}})
+  - **Paging Example**
+  - ![5]({{"assets/img/cs/os/11/5.png" | absolute_url}})
 
-**Address Translation Architecture**
-![6]({{"assets/img/cs/os/11/6.jpg" | absolute_url}})
+  - **Address Translation Architecture**
+  - ![6]({{"assets/img/cs/os/11/6.jpg" | absolute_url}})
 
-**Paging Hardware with TLB**
-![7]({{"assets/img/cs/os/11/7.png" | absolute_url}})
+  - **Paging Hardware with TLB**
+  - ![7]({{"assets/img/cs/os/11/7.png" | absolute_url}})
 
 ---------
 
-- Two-Level Page Table
-  - 현대의 컴퓨터는 `address space`가 매우 큰 프로그램도 실행 가능하도록 지원
-    - `32bit address` 사용시 : 2<sup>32</sup>B(4GB)의 주소 공간 
-      - `page size`가 4K일 때 1M개의 `page table entry`가 필요함
-      - 각 `page entry`가 4B이면, 프로세스당 4M의 `page table`이 필요
-      - 그러나 대두분의 프로그램은 4G의 주소 공간 중 지극히 일부분만 사용하므로 `page table`의 공간 낭비가 심해짐 *(사용되지 않는 page가 있더라도, page table이 처음부터 순차적으로 인덱싱이 가능하도록 하기 위해서는 모든 page들이 테이블에 있어야 함)*
+  - Two-Level Page Table
+    - 현대의 컴퓨터는 `address space`가 매우 큰 프로그램도 실행 가능하도록 지원
+      - `32bit address` 사용시 : 2<sup>32</sup>B(4GB)의 주소 공간 
+        - `page size`가 4K일 때 1M개의 `page table entry`가 필요함
+        - 각 `page entry`가 4B이면, 프로세스당 4M의 `page table`이 필요
+        - 그러나 대두분의 프로그램은 4G의 주소 공간 중 지극히 일부분만 사용하므로 `page table`의 공간 낭비가 심해짐 *(사용되지 않는 page가 있더라도, page table이 처음부터 순차적으로 인덱싱이 가능하도록 하기 위해서는 모든 page들이 테이블에 있어야 함)*
 
-      -> `page table` 자체를 `page`로 구성
+        -> `page table` 자체를 `page`로 구성
 
-  - Example
-    - Logical address의 구성
-      - 20bit의 `page number`
-      - 12bit의 `page offset`
-    - `Page table` 자체가 `page`로 구성되기 때문에 `page number`는 다음과 같이 나뉨
-      - 10bit의 `page number` (outer page table)
-      - 10bit의 `page offset` (inner page table)
-      - ![8]({{"assets/img/cs/os/11/8.png" | absolute_url}})
-      - `page offset` : 4kb인 페이지의 offset을 표현하기 위해 12bit
-      - `inner page number(P2)` : 페이지 크기와 동일한 4kb 내부에 4byte의 엔트리들이 있음(총 1024개), 따라서 10bit 필요(총 Inner Page T)
-      - `outer page number(P1)` : `inner page`는 한 `page`당 1024개의 `physical memory`의 `frame`을 가리킬 수 있음,`physical memory`의 총 `frame` 수는 2<sup>20</sup>(32bit 기준)이므로 `inner page`는 1024개가 필요, 따라서 1024개를 가리키기 위해 `outer page number`도 10bit 필요
-    - ![9]({{"assets/img/cs/os/11/9.png" | absolute_url}})
-    - ![10]({{"assets/img/cs/os/11/10.png" | absolute_url}})
+    - Example
+      - Logical address의 구성
+        - 20bit의 `page number`
+        - 12bit의 `page offset`
+      - `Page table` 자체가 `page`로 구성되기 때문에 `page number`는 다음과 같이 나뉨
+        - 10bit의 `page number` (outer page table)
+        - 10bit의 `page offset` (inner page table)
+        - ![8]({{"assets/img/cs/os/11/8.png" | absolute_url}})
+        - `page offset` : 4kb인 페이지의 offset을 표현하기 위해 12bit
+        - `inner page number(P2)` : 페이지 크기와 동일한 4kb 내부에 4byte의 엔트리들이 있음(총 1024개), 따라서 10bit 필요(총 Inner Page T)
+        - `outer page number(P1)` : `inner page`는 한 `page`당 1024개의 `physical memory`의 `frame`을 가리킬 수 있음,`physical memory`의 총 `frame` 수는 2<sup>20</sup>(32bit 기준)이므로 `inner page`는 1024개가 필요, 따라서 1024개를 가리키기 위해 `outer page number`도 10bit 필요
+      - ![9]({{"assets/img/cs/os/11/9.png" | absolute_url}})
+      - ![10]({{"assets/img/cs/os/11/10.png" | absolute_url}})
 
-- ***결과적으로 두번 참조하기 때문에 시간적으로, 공간적으로 손해인데 왜 Two-Level을 사용할까?*** 
-  - 이전의 Single-Level에서는 사용되지 않는 `page`(주소공간)에 대해서도, `page table`의 인덱싱을 위해서 `page table`에 추가해줘야 했음
-  - 그러나 Two-Level에서는 사용되지 않는 `page`에 대해서는 `Outer page table`의 엔트리 값을 `NULL`로 해두면 이러한 낭비를 없앨 수 있음(대응하는 `inner page table`이 없음)
+    - ***결과적으로 두번 참조하기 때문에 시간적으로, 공간적으로 손해인데 왜 Two-Level을 사용할까?*** 
+      - 이전의 Single-Level에서는 사용되지 않는 `page`(주소공간)에 대해서도, `page table`의 인덱싱을 위해서 `page table`에 추가해줘야 했음
+      - 그러나 Two-Level에서는 사용되지 않는 `page`에 대해서는 `Outer page table`의 엔트리 값을 `NULL`로 해두면 이러한 낭비를 없앨 수 있음(대응하는 `inner page table`이 없음)
 
-     
-paging ? - 주소 변환을 페이지별로 올라간 주소를 알고있어야 하기 때문에, 주소변환이 복잡해짐
-segmentation? - 의미있는 단위로 쪼갬 code, data, statck 
+-----------
+
+  - Multilevel Paging and Performance
+    - Address space가 더 커지면 다단계 페이지 테이블이 필요
+    - 각 단계의 페이지 테이블이 메모리에 존재하므로 `logical address`의 `physical address` 변환에 더 많은 메모리 접근이 필요함
+    - `TLB`를 통해 메모리 접근 시간을 줄일 수 있음
+    - 4단계 페이지 테이블을 사용하는 경우 Effective memory access time 예제
+      - 메모리 접근 시간 : `100ns`
+      - TLB 접근 시간 : `20ns`
+      - TLB hit ratio : `98%`인 경우
+      - $$EAT = 0.98 * (100 + 20) + 0.02 * (500 + 20) = 128ns$$
+      - 결과적으로 주소변환을 위해서는 `28ns`만 소요
+
+  - Valid(v) / Invalid(i) Bit in a Page Table
+    - ![11]({{"assets/img/cs/os/11/11.png" | absolute_url}})
+    - 실제로는 `Page table`의 각 `entry`마다 `Protection bit`도 있음 
+    - **Protection bit?**
+      - 페이지에 대한 접근 권한(read/write/read-only) 권한을 나타냄
+      - ex) text-segment page는 read-only
+      - 연산에 대한 권한이지 프로세스의 페이지가 맞는지에 대한 권한이 아님
+    
+
+  - **Inverted Page Table**
+    - 기존 페이지 테이블들은 각 프로세스마다 하나씩 테이블을 가져야 했고, 대응하는 `page`가 메모리에 있든 없든 간에 `page table`에는 `entry`로 존재해야 함
+    - `physical memory`의 `frame`에 대응하는 통합된 `page table`을 가지고, `pid`를 통해 프로세스의 `page`를 하나의 테이블에서 관리하는 방법
+    - `physical memory`의 `frame`을 기준으로 역으로 페이지 테이블을 생성`(inverted)`
+    - 인덱싱이 느려짐(일반 페이지 테이블에서는 페이지 번호로 인덱싱 가능, 그러나 Inverted에서는 pid와 page 번호에 해당하는 frame을 찾기 위해 페이지 테이블을 전탐해야함)
+    - `associative register`를 이용하여 `page table`을 구현하고, `parallel search`가 가능하도록 함(비쌈)
+    - ![12]({{"assets/img/cs/os/11/12.png" | absolute_url}})
+      
+
+  - **Shared Page**
+    - ***Shared code***
+      - `Re-entrant Code (=Pure code)` : 재진입 가능 코드
+      - `read-only`로 하여 프로세스 간에 하나의 `code`만 메모리에 올려서 공유함
+        - e.g. text editors, compilers, window systems
+      - shared code는 모든 프로세스의 logical address space에서 동일한 위치에 있어야 함
+    - *Private code and data*
+      - 각 프로세스들이 독자적으로 메모리에 올림
+      - private data는 logical addrses space의 아무 곳에 와도 무방
+    - ![13]({{"assets/img/cs/os/11/13.png" | absolute_url}})
+
+----------------
+
+- **Segmentation**
+  - 프로그램은 의미 단위인 여러 개의 `segment`로 구성
+    - 작게는 프로그램을 구성하는 함수 하나하나를 세그먼트로 정의
+    - 크게는 프로그램 전체를 하나의 세그먼트로 정의 가능
+    - 일반적으로는 `code`, `data`, `stack` 부분이 하나씩의 세그먼트로 정의됨
+  - Segment는 다음과 같은 `logical unit`들임
+    - `main()`, `function`, `global variables`, `stack`, `symbol table`, `arrays`
+  - Segment의 구조
+    - `logical address`는 다음의 두 가지로 구성
+      - ***<segment-number, offset>***
+    - `Segment table`
+      - 각 테이블의 엔트리는 `base`, `limit`을 가짐
+        - `base` : 세그먼트의 `physical address`에서의 시작 주소
+        - `limit`: 세그먼트의 길이
+    - `Segment-table base register(STBR)`  : 물리적 메모리에서의 `segment tagble`의 위치
+    - `Segment-table length register(STLR)`: 프로그램이 사용하는 `segment`의 수
+    - *Segment number은 STLR보다 작아야 함*
+    - ![14]({{"assets/img/cs/os/11/14.png" | absolute_url}})
+    - ***Trap (addressing err)***
+      - Segment 번호가 STLR보다 클 때
+      - Segment 내에서의 `offset(d)`이 `limit`보다 클 때
+    - ***Architecture***
+      - Protection
+        - 각 세그먼트 별로 `protection bit`가 있음
+        - Each entry
+          - `Valid` bit = 0 -> `illegal segment`
+          - `Read/Write/Execution` 권한 bit
+      - Sharing
+        - shared segment
+        - same segment number
+        - segment는 의미 단위이기 때문에 `sharing`과 `protection`에 있어 `paging`보다 훨씬 효과적
+      - Allocation
+        - `firt fit` / `best fit` 적용 필요
+        - `external fragmentation` 발생 가능
+        - segment의 길이가 일정하지 않으므로 가변분할 방식에서와 동일한 문제들이 발생함
+      - ***정리하면 Protection, Sharing에서 Segmentation이 좋지만 Allocation 부분에서 단점이 있음***
+
+-------------------
+
+- **Paged Segmentation**
+  - 일단 Segmentation과 차이점?
+    - `segment-table entry`가 `segment`의 `base address`를 가지고 있는 것이 아닌 `segment`를 구성하는 `page table`의 `base address`를 가지고 있음
+    - 즉, 각 segment 별로 `page table`을 가지며, 이 `page table`의 시작 주소를 `segment-table`에서 관리함
+  - ![15]({{"assets/img/cs/os/11/15.png" | absolute_url}})
+  - 위 그림에서 `d`는 `segment` 내에서의 `offset`
+  - 이 `offset`에서 `page #(p)`과 `page`에서의 `offset(d')`을 분리함
 
 
+---------------------
+
+## 여기까지 언급한 모든 주소 변환 기법들은 하드웨어(MMU)에서 지원해주는 기법들임
+
+#### IO 장치에 접근할 때는 운영체제가 개입해야 함
