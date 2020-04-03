@@ -25,7 +25,7 @@ public Xfermode setXfermode (Xfermode xfermode)
 
 `PorterDuff`에서 지원하는 `Mode`는 `ADD`, `CLEAR`, `DARKEN`, `DST` 등이 있는데 이는 docs에 예제 그림과 함께 잘 나와있다.
 
-###[developers]({{"https://developer.android.com/reference/android/graphics/PorterDuff.Mode"}})
+### [developers]({{"https://developer.android.com/reference/android/graphics/PorterDuff.Mode"}})
 
 ---
 결과적으로 다음과 같은 코드로 쉽게 구현할 수 있었다.
