@@ -50,7 +50,7 @@ comments: true
     - Overlaying?
       - 메모리가 제한적이고, 가상 메모리를 지원하지 않는 환경에서 하나의 프로그램을 쪼개서 계속 같은 자리에 덮어 씌우는 방식
   - 크게 두 가지로 분류됨
-    - `Memory Paritioning` : 과거 OS에서 주로 사용됨
+    - `Memory Partitioning` : 과거 OS에서 주로 사용됨
     - `Virtual memory` : paging과 segmentation에 기반함
 
 ### Fixed Partitioning
