@@ -20,7 +20,7 @@ comments: true
     - blocking send / blocking receive (rendezvous - 둘 다 기다림)
     - nonblocking send, blocking receive (가장 일반적임)
     - nonblocking send, nonblocking reveive
-  - `**Addressing**` : sender와 receiver를 어떻게 특정할 것이냐?
+  - `Addressing` : sender와 receiver를 어떻게 특정할 것이냐?
     - `Direct addressing` : receiver의 id를 명시해둠
       - direct addressing일 때 receiver는 다음 두 가지 방식으로 처리 가능
         - Explicit addressing
