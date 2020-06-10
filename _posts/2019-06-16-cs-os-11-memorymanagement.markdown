@@ -50,7 +50,7 @@ comments: true
 ![3]({{"assets/img/cs/os/11/3.png" | absolute_url}})
 
 #### Dynamic Loading
-- 프로세스 전체를 메모리에 미리 다 올리는 것이 아니라 해당 루틴이  때 메모리에 올리는`(load)` 것
+- 프로세스 전체를 메모리에 미리 다 올리는 것이 아니라 해당 루틴이 불려질 때 메모리에 올리는`(load)` 것
 - `Memory Utilization`의 향상
 - 자주 사용되지 않는 코드들에 유용 `e.g. 예외 처리 루틴`
 - 운영체제의 특별한 지원 없이 프로그램 자체에서 구현 가능 (OS는 라이브러리를 통해 지원 가능)
@@ -139,7 +139,7 @@ comments: true
     - 모든 리스트를 탐색해야 함
     - 상대적으로 큰 `hole`들이 생성됨
 
-- `**Compaction**`
+- **`Compaction`**
   - `external fragmentation` 문제를 해결하는 한 가지 방법
   - 사용 중인 메모리 영역을 한군데로 몰고 `hole`들을 다른 한 곳으로 몰아 큰 `block`을 만드는 것
   - 매우 많은 비용이듬
