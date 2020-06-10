@@ -78,9 +78,9 @@ boolean safe(state S){
   rest = {all processes};
   while(possible){
     <find a process P in rest such taht 
-      claim [k, *] - alloc[k, *] <= currentvail;>
+      claim [k, *] - alloc[k, *] <= currentavail;>
       if(found){ /* 만약 위 조건을 만족하는 프로세스 P가 있다면 실행 /*
-        currentvail = currentvail + alloc[k, *];
+        currentavail = currentavail + alloc[k, *];
         rest = rest - {P};
       }
       else possible = false;
