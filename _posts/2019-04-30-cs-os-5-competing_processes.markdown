@@ -31,7 +31,7 @@ comments: true
          - test-and-set, fetch-and-add, compare-and-swap, load-link/store-conditional
        - SW-level solutions
          - 크리티컬 섹션에서 명령어 실행
-       - 결과는 success / faileure
+       - 결과는 success / failure
      - Critical Section
        - 공유 자원에 접근하는 프로세스의 코드 영역으로 반드시 한 프로세스만 해당 자원에 접근할 수 있도록 보장되어야 하는 영역
      - Mutual Exclusion
