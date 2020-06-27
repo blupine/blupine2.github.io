@@ -164,8 +164,9 @@ comments: true
     - `Internal fragmentation` 발생 가능 (프로세스의 크기가 `frame`의 크기의 배수가 아닐 경우에는 항상 한 `frame`에 Internal fragmentation 발생)
   - ***Implementation of Page Table***
     - `Page table`은 main memory에 상주
-    - `Page-table base register(PTBR)`가 `page table`을 가리킴
-    - `Page-table length register(PTLR)`가 테이블 크기를 보관 
+    - 주소 변환을 위한 페이지 테이블인데, 페이지 테이블을 메모리에 둔다? 그러면 페이지 테이블은 어떻게 찾나?
+      - `Page-table base register(PTBR)`가 `page table`을 가리킴
+      - `Page-table length register(PTLR)`가 테이블 크기를 보관 
     - 모든 메모리 접근 연산에는 2번의 `memory access`가 필요(`page table` 1번, `data/instruction`접근 1번)
     - 속도 향상을 위해 `associative register` 또는 `Translation look-aside buffer(TLB)`라 불리는 고속의 하드웨어 캐시 사용
   - *매번 TLB 전체를 탐색하는 것은 비효율, `parallel search`가 가능한 `Associative registers`를 이용해서 구현*
