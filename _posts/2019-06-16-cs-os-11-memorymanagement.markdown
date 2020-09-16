@@ -152,7 +152,7 @@ comments: true
 
 ### Noncontiguous Allocation
 - **Paging**
-  - 프로세스의 가상메모리를 동일한 사이즈의 `page` 단위로 나눔
+  - 프로세스의 가상메모리를 동일한 사이즈의 `page` 단위로 나눔, 페이지 번호로 페이지테이블을 인덱싱 (모든 페이지가 테이블에 있어야 함)
   - 가상메모리의 내용이 `page` 단위로 `noncontiguous`하게 저장됨
   - 일부는 `backing storage`에, 일부는 `physical memory`에 저장
   - *basic method*
