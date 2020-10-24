@@ -1,0 +1,19 @@
+---
+layout: post
+title:  "1. TCP 5계층"
+subtitle: ""
+date:   2020-10-21- 01:12:27 +0900
+categories: cs
+tags : network
+comments: true
+---
+
+
+#### TCP/IP 5 Layer
+ - ![1]({{"/assets/img/cs/network/1.png" | absolute_url}})
+
+
+#### 각 Layer 별 Encapsulation
+ - ![2]({{"/assets/img/cs/network/2.png" | absolute_url}})
+ - ![3]({{"/assets/img/cs/network/3.png" | absolute_url}})
+ - 
