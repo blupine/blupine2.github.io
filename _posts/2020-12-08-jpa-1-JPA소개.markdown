@@ -1,0 +1,62 @@
+---
+layout: post
+title:  "JPA 소개"
+subtitle: "JPA 소개"
+date:   2020-12-08 16:44:44 +0900
+categories: dev
+tags : JPA
+---
+
+### 1. SQL을 직접 다룰 때 발생하는 문제점
+- **반복 작업**
+  - CRUD 각각의 기능에 해당하는 SQL문을 작성, 반복
+  - 객체를 관계형 DB에 저장하기 위해 CRUD를 구현하려면 너무 많은 SQL과 JDBC API를 코드로 작성해야 함(반복)
+- **SQL 의존적인 개발**
+  - 기존 구현 내용에 추가적인 요구사항을 반영할 경우 CRUD 모든 SQL문을 업데이트 해야 함
+  - DAO(Data Access Object)의 계층 분할의 어려움
+    - 아래 코드처럼 DAO의 메소드가 어떤 쿼리를 날리는지 일일이 확인해보면서 개발을 해야 함(의존)
+    - ```java
+        public class MemberDAO{
+            public Member find(String memberID){
+                // SELECT MEMBER_ID, TEL FROM MEMBER M 
+            }
+            public Member findWithTeam(String memberID){
+                // SELECT MEMBER_ID, TEL, TEAM FROM MEMBER
+            }
+        }
+        ```
+  - 정리하면?
+    - 진정한 의미의 계층 분할이 어려움 (애플리케이션과 DB의 계층 분할)
+    - 엔티티를 신뢰할 수 없음 (DAO의 SQL을 하나 하나 열어봐야 하는 문제)
+    - SQL에 의존적인 개발을 피하기 어려움
+
+- **JPA와 문제 해결**
+  - 개발자가 직접 SQL 작성 안함, JPA API를 통해 데이터베이스 접근
+  - 저장 기능
+    - ```java
+        jpa.persist(member);
+        ```
+    - JPA가 객체와 *매핑정보*를 보고 적절한 `INSERT SQL`문을 생성해서 쿼리함
+    - *매핑정보?* : 어떤 객체를 어떤 테이블에 관리할지에 대한 정보
+  - 조회 기능
+    - ```java
+        String memberId = "helloId";
+        Member member = jpa.find(Member.class, memberId);
+        ```
+    - `find()` 메소드는 객체 하나를 데이터베이스에서 조회함
+    - JPA는 객체와 매핑정보를 보고 `SELECT SQL`을 생성하 쿼리함
+  - 수정 기능
+    - ```java
+        Member member = jpa.find(Member.class, memberId);
+        member.setName("new name");
+        ```
+    - JPA는 별도의 수정 메소드를 제공하지 않음, 객체를 변경하면 `commit()` 시에 변경사항이 DB에 반영됨
+  - 연관된 객체 조회
+    - ```java
+        Member member = jpa.find(Member.class, memberId);
+        Team team = member.getTeam(); // 연관된(참조관계) 객체 조회
+        ```
+    - 연관된 객체를 *참조하는 시점*에 JPA가 `SELECT SQL` 수행을 통해 가져옴
+
+
+### 2. 패러다임의 불일치

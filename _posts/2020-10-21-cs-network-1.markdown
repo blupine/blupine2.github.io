@@ -15,5 +15,6 @@ comments: true
 
 #### 각 Layer 별 Encapsulation
  - ![2]({{"/assets/img/cs/network/2.png" | absolute_url}})
+ 
  - ![3]({{"/assets/img/cs/network/3.png" | absolute_url}})
  - 

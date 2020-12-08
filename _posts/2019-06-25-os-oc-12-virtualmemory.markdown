@@ -117,7 +117,7 @@ comments: true
 
 ----------
 
-#### Clocl Algorithm
+#### Clock Algorithm
 - LRU의 근사(approximation) 알고리즘
 - LRU, LFU가 실제 환경에 적용되지 못하는 한계가 있기 때문에 실제 적용되는 모델
 - 여러 명칭으로 불림
