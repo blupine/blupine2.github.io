@@ -1,0 +1,60 @@
+---
+layout: post
+title:  "2. JPA 시작"
+subtitle: "2. JPA 시작"
+date:   2020-12-13 16:44:44 +0900
+categories: dev
+tags : JPA
+---
+
+
+### 1. 객체 매핑 시작
+- 클래스와 테이블을 매핑하기 위해 어노테이션을 사용함
+```java
+  import javax.persistence.*
+
+  @Entity
+  @Table(name="MEMBER")
+  public class Member{
+
+    @Id
+    @Column(name = "ID")
+    private String id;
+
+    @Column(name = "NAME")
+    private String username;
+
+    // 매핑 정보가 없는 필드
+    private Integer age;
+
+  }
+```
+- ![1]({{"assets/img/dev/jpa/2/1.png" | absolute_url}})
+- ***@Entity***
+  - 해당 클래스를 테이블과 매핑한다고 JPA에게 알려줌
+  - @Entity 어노테이션이 사용된 클래스를 `엔티티 클래스`라고 함
+
+- ***@Table***
+  - 엔티티 클래스에 매핑할 테이블 정보를 알려줌
+  - 위에서는 `name` 속성을 사용해서 Member 클래스를 MEMBER 테이블에 매핑함
+  - 이 어노테이션을 생략하면 클래스 이름을테이블 이름으로 매핑함(정확히는 엔티티 이름을 사용)
+
+- ***@Id***
+  - 엔티티 클래스의 필드를 테이블의 기본 키<sub>Primary key</sub>에 매핑한다
+  - @Id 어노테이션이 사용된 필드를 `식별자 필드`라고 함
+
+- ***@Column***
+  - 필드를 컬럼에 매핑함
+  - 여기서는 `name` 속성을 사용해서 Member 엔티티의 username 필드를 MEMBER 테이블의 NAME 컬럼에 매핑했음
+
+- **매핑 정보가 없는 필드** 
+  - 위에서 age 필드와 같이 어노테이션을 생략한 필드는 필드명을 사용해서 컬럼명으로 매핑함
+  - 대소문자를 구분하는 데이터베이스를 사용하면 명시적으로 매핑해야 함```@Column(name="AGE")```
+
+------------------------------------------------------------
+
+### 2. persistence.xml 설정
+- JPA는 persistence.xml을 사용해서 필요한 설정 정보를 관리함
+- ```META-INF/persistence.xml``` 클래스 패스 경로에 있으면 별도의 설정 없이 JPA가 인식 가능함
+
+
