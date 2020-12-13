@@ -58,5 +58,197 @@ tags : JPA
         ```
     - 연관된 객체를 *참조하는 시점*에 JPA가 `SELECT SQL` 수행을 통해 가져옴
 
+-----------------------------------------------------------------
 
 ### 2. 패러다임의 불일치
+ - 객체와 관계형 데이터베이스는 지향하는 목적이 서로 다르므로 둘의 기능과 표현 방법도 다름 -> **패러다임의 불일치 문제**
+ - **상속**
+   - 객체에는 상속이란 개념이 있지만 데이터베이스에는 그런 개념이 없음 (상속이란 개념이 있으나 객채의 상속과는 다름)
+   - 그나마 아래 그림처럼 *슈퍼타입*, *서브타입* 관게를 사용하면 객체의 상속과 가장 유사한 형태로 테이블 설계가 가능함
+   - ![1]({{"assets/img/dev/jpa/1/1.png" | absolute_url}})
+   - 예를들어 아래와 같은 코드가 있다고 했을 때
+   - ```java
+        abstract class Item{
+            Long id;
+            String name;
+            int price;
+        }
+        class Album extends Item{
+            String artist;
+        }
+        ```
+    - Album 객체를 저장하려면?
+      - ```sql
+        INSERT INTO ITEM ...
+        INSERT INTO ALBUM ...   
+        ```
+    - JDBC API를 활용하더라도?
+      - 부모 데이터는 부모 테이블에, 자식 데이터는 자식 테이블에 각각 넣어줘야 함
+      - 조회도 부모, 자식 테이블을 조인해서 객체 생성해야 함
+    - 자바 컬렉션 처럼 저장할 수 있다면?
+      - ```java
+        list.add(album);                // Read
+        Album album = list.get(albumId);    // Wrtie
+        ```
+    - **`JPA와 상속`**
+      - JPA는 이런 상속과 관련된 패러다임의 불일치 문제를 개발자 대신 해결해줌
+      - 객체를 컬렉션에 저장하듯이 테이블에 저장할 수 있음
+      - ```java
+        /* 이렇게 조회를 하면? */
+        String albumId = "id100";
+        Album album = jpa.find(Album.class, albumId);
+        ```
+      - ```sql
+        /* 이렇게 알아서 테이블 조인, 결과 반환함 */
+        SELECT I.*, A.*
+            FROM ITEM I
+            JOIN ALBUM A ON I.ITEM_ID = A,ITEM_ID
+        ```
+<br>
+- **연관관계**
+  - 객체는 `참조`를 사용해서 다른 객체와 연관관계를 가짐
+  - 테이블은 `외래키`를 사용해서 다른 테이블과 연관관계를 가짐, `조인`을 통해서 연관 테이블을 조회함
+  - 그게 뭐가 문제냐?
+    - ```java
+        class Member{
+          String id;          // MEMBER_ID 컬럼
+          Long teamId;        // TEAM_ID FK 
+          String username;    //USERNAME 컬럼
+        }
+        
+        class Team{
+          Long id;            // TEAM_ID PK 사용
+          String name;        // NAME 컬럼
+        }
+    ```
+    -  이렇게 객체를 테이블에 맞춰 모델링할 경우 저장은 쉽게 할 수 있음
+    -  그러나 멤버로부터 팀을 가져오려면?
+       -  ```java
+       Team team = member.getTeam()
+       ``` 
+       - 객체가 연관된 객체의 참조 관계를 보관하는 게 아니기 때문에 위와 같이 사용이 불가능함
+       - member가 가지는 외래키(teamId)를 이용해서 Team을 불러와야 함
+     - ***결국 객체를 참조를 통해 조회할 수 없고, 객체지향의 특징을 잃어버리게 됨***
+
+  - **JPA에서의 연관관계?**
+    - ```java
+        /* 연관관계와 함께 저장 */
+        member.setTeam(team);
+        jpa.persist(member);
+
+        /* 연관관계 참조 */
+        Member member = jpa.find(Member.class, memberId);
+        Team team = meber.getTeam();
+    ```
+<br>
+- **객체 그래프 탐색**
+  - *SQL을 직접 다루면 처음 실행하는 SQL에 따라 객체 그래프를 탐색할 수 있는 범위가 정해짐*
+  - 이게 무슨말이냐?
+    - ```sql
+      SELECT M.*, T.*
+        FROM MEMBER M
+        JOIN TEAM T ON M.TEAM_ID = T.TEAM_ID
+      ```
+    - 위와 같은 SQL 문으로 조회를 하면 Team과 Member 외에 객체 그래프 탐색이 불가능해짐
+    - SQL에 의존적인 개발이 될 수 밖에 없음
+    - ```java
+        Member member = mermberDAO.find(memberId);
+        member.getTeam();
+        member.getOrder().getDelivery();
+        // ?? 가능할지 예측이 불가능, find 메소드를 열여서 SQL을 확인해봐야 함
+      ```
+    - 결국에는 다음과 같은 메소드들이 구현되어야 할 것
+    - ```java
+        memberDAO.getMember();
+        memberDAO.getMemberWithTeam();
+        memberDAO.getMemberWithOrderWithDelivery();
+      ```
+  - **JPA와 객체 그래프 탐색**
+    - JPA를 사용하면 위에서 언급한 문제들이 해결됨
+    - ```java
+        member.getOrder().getOrderItem(); // 자유로운 객체 그래프 탐색
+      ```
+    - `지연 로딩`
+      - 연관된 객체를 사용하는 시점에 적절한 SELECT 구문 실행, 실제 객체를 사용하는 시점까지 조회를 미룸
+
+<br>
+- **비교**
+  - 객체와 테이블 엔트리 사이에는 *비교*에 있어서도 패러다임의 불일치가 존재함
+  - 객체는 동일성(Identity), 동등성(Equality) 두 가지 비교 방법이 있음
+    - 동일성 : == 비교, 객체 인스턴스의 주소 값을 비교함
+    - 동등성 : equals() 메소드를 사용, 객체 내부의 값을 비교
+  - 따라서 테이블의 로우를 구분하는 방법과 객체를 구분하는 방법에는 차이가 있음
+  - 결국 아래와 같은 패러다임의 불일치 발생
+  - ```java
+      String memberId = "100";
+      Member member1 = memberDAO.getMember(memberId);
+      Member member2 = memberDAO.getMember(memberId);
+      
+      member1 == member2;  // false
+    ```  
+  - ```java
+      Member member1 = list.get(0);
+      Member member2 = list.get(0);
+
+      member1 == member2;  // true
+    ```  
+  - JPA와 비교
+    - JPA는 같은 트랜잭션일 때 같은 객체가 조회되는 것을 보장함
+  - ```java
+      String memberId = "100";
+      Member member1 = jpa.find(memberId);
+      Member member2 = jpa.find(memberId);
+      
+      member1 == member2;  // true
+    ```  
+- **결국 이런 패러다임의 불일치로 인해 데이터 중심의 모델링을 할 수 밖에 없어진다!**
+
+<br>
+
+-----------------------------------------------------------------
+
+### 3. JPA란 무엇인가?
+- JPA<sub>(Java Persistence API)</sub>는 자바 진영의 ORM 기술 표준이다. 애플리케이션과 JDBC 사이에서 동작한다.
+- ORM<sub>(Object-Relational Mapping)</sub>은 객체와 관계형 데이터베이스를 매핑하는 것. 
+![2]({{"assets/img/dev/jpa/1/2.png" | absolute_url}})
+- SQL을 개발자 대신 생성해서 DB에 전달하는 것 뿐만 아니라 패러다임의 불일치 문제들을 해결해줌
+- 객체 측면에서 정교한 객체 모델링이 가능해지고 관계형 데이터베이스는 데이터베이스에 맞도록 모델링해주면 됨
+- 그리고 둘을 어떻게 매핑해야 하는지 매핑 방법만 ORM 프레임워크에 알려주면 된다.
+- **하이버네이트** : 자바 진영의 가장 많이 사용되는 ORM 프레임워크, 대부분의 패러다임 불일치 문제를 해결해줌
+- ![3]({{"assets/img/dev/jpa/1/3.png" | absolute_url}})
+- JPA는 자바 ORM 기술에 대한 **API 표준 명세**, 즉 인터페이스들의 모음이다.
+- 따라서 JPA를 이용하려면 JPA를 구현한 ORM 프레임워크를 선택해야 하는데, 그러한 프레임워크들이 EclipseLink, DataNucleus, **`Hibernate`**이다.
+
+<br>
+
+- **왜 JPA를 사용해야 하는가?**
+  - **생산성**
+    - 자바 컬렉션으로 객체를 다루듯이 DB에 저장, 조회 등을 할 수 있음
+      - ```java
+        jpa.persist(member); // 저장
+        Member member = jpa.find(memberId); // 조회
+      ```
+    - 지루하고 반복적인 CRUD용 SQL을 개발자가 직접 작성하지 않아도 됨
+    - DDL도 자동으로 생성해줌 (e.g. ```CREATE TABLE ...```)
+    - 데이터베이스 설계 중심의 패러다임을 객체 설계 중심으로 역전 가능
+  - **유지보수**
+    - SQL을 직접 다룰 경우 엔티티에 필드 하나만 추가되어도 골치아파짐
+      - 모든 CRUD SQL 수정 필요
+    - JPA가 이런거 대신 처리해줌, 유지보수 필요한 코드가 줄어듬
+  - **패러다임의 불일치 문제 해결** 
+    - 상속, 연관관계, 객체 그래프 탐색, 비교하기 같은 패러다임의 불일치 문제를 해결해줌
+  - **성능**
+    - JPA는 애플리케이션과 데이터베이스 사이에서 다양한 성능 최적화 기능을 제공함
+    - 애플리케이션과 데이터베이스 사이에 계층이 하나 더 있으면 다음과 같은 시도가 가능함
+    - ```java
+      String memberId = "100";
+      Member member1 = jpa.find(memberId);  // SELECT FROM TABLE
+      Member member2 = jpa.find(memberId);  // Use cached member instance
+    ```
+    - 두 번째 조회에서는 쿼리하지 않고 이미 이전에 찾아온 인스턴스를 그대로 사용한다.
+  - **데이터 접근 추상화와 벤더 독립성**
+    - 관계형 데이터베이스는 벤더<sub>oracle, mysql</sub>마다 사용법이 다른 경우가 많음
+      - e.g) 페이징 처리 : 데이터베이스마다 달라서 사용법을 각각 배워야 함
+      - 결국 애플리케이션은 처음 선택한 데이터베이스 기술에 종속되고, 변경이 어려워짐
+    - 다음 그림과 같이 JPA는 애플리케이션과 데이터베이스 사이의 추상화 계층을 제공, 애플리케이션의 데이터베이스 종속성을 해결해줌
+    - ![4]({{"assets/img/dev/jpa/1/4.png" | absolute_url}})
