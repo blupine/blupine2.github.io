@@ -10,7 +10,7 @@ tags : JPA
 
 ### 1. 객체 매핑 시작
 - 클래스와 테이블을 매핑하기 위해 어노테이션을 사용함
-```java
+- ```java
   import javax.persistence.*
 
   @Entity
@@ -28,7 +28,8 @@ tags : JPA
     private Integer age;
 
   }
-```
+  ```
+
 - ![1]({{"assets/img/dev/jpa/2/1.png" | absolute_url}})
 - ***@Entity***
   - 해당 클래스를 테이블과 매핑한다고 JPA에게 알려줌
