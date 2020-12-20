@@ -1,0 +1,256 @@
+---
+layout: post
+title:  "4. 엔티티 매핑"
+subtitle: "4. 엔티티 매핑"
+date:   2020-12-19 17:26:41 +0900
+categories: dev
+tags : JPA
+---
+
+JPA에서 지원하는 매핑 어노테이션은 다음과 같이 크게 4가지로 분류할 수 있음
+- 객체와 테이블 매핑 : @Entity, @Table
+- 기본 키 매핑 : @Id
+- 필드와 컬럼 매핑 : @Column
+- 연관관계 매핑 : @ManyToOne, @JoinColumn
+
+-------------------------------------------------
+
+### 1. @Entity
+JPA를 사용해서 테이블과 매핑할 클래스는 @Entity 어노테이션을 필수로 붙여야 함
+
+|:---|:---|:---|
+|속성|기능|기본값|
+|name|JPA에서 사용할 엔티티 이름을 지정한다. 보통 기본값인 클래스 이름을 사용한다. 만약 다른 패키지에 이름이 같은 엔티티 클래스가 있다면 이름을 지정해서 충돌하지 않도록 해야 한다.|설정하지 않으면 클래스 이름을 그대로 사용(e.g. Member|
+
+- 기본 생성자를 필수로 만들어줘야 한다 (public 또는 protected)
+   : JPA가 엔티티 객체를 생성할 때 기본 생성자를 사용함..
+- final 클래스, enum, interface, inner 클래스에는 사용할 수 없다
+- 저장할 필드에 final을 사용하면 안 된다.
+
+-------------------------------------------------
+
+### 2. @Table
+엔티티와 매핑할 테이블 이름을 지정한다. 생략하면 매핑한 엔티티 이름을 테이블 이름으로 사용한다.
+
+|:---|:---|:---|
+|속성|기능|기본값|
+|name|매핑할 테이블 이름|엔티티 이름|
+|catalog|catalog 기능이 있는 데이터베이스에서 catalog를 매핑한다||
+|schema|schema 기능이 있는 데이터베이스에서 schema를 매핑한다||
+|uniqueConstraints<br>(DDL)|DDL 생성 시에 유니크 제약조건을 만든다. <br>2개 이상의 복합 유니크 제약조건도 만들 수 있다. <br>스키마 자동 생성 기능을 사용해서 DDL을 만들 때만 사용된다.||
+
+
+- ![1]({{"assets/img/dev/jpa/3/1.png" | absolute_url}})
+
+-------------------------------------------------
+
+### 3. 데이터베이스 스키마 자동 생성
+JPA는 데이터베이스 스키마를 자동 생성하는 기능을 지원한다. 클래스의 매핑 정보를 보고 데이터베이스 방언을 이용해서 자동으로 데이터베이스 스키마를 생성해준다.
+
+- persistence.xml 설정 추가
+  - ```xml
+    <property name="hibernate.hbm2ddl.auto" value="create" />
+    ```
+  - 위 설정이 있으면 애플리케이션 실행 시점에 데이터베이스 테이블을 자동으로 생성
+  - 기존 테이블이 있으면 drop 후 다시 생성
+  - 운영 환경에서 사용할 만큼 완벽하진 않으니까 참고 용도로만 사용할 것을 권장
+
+-------------------------------------------------
+
+### 4. DDL 생성 기능
+-  어노테이션을 통해 제약조건을 추가하는 DDL을 정의할 수 있음
+- ```java
+  @column(name = "NAME", nullable = false, length = 10)
+  private String username;
+  ```
+<br>
+
+- 유니크 제약조건
+  - @Table의 uniqueConstraints 속성
+  - ```java
+    @Table(name = "MEMBER", uniqueConstraints = {@UniqueConstraint(
+      name = "NAME_AGE_UNIQUE",
+      columnNames = {"NAME", "AGE"} )})
+    public class Member {
+      ...
+    }
+    ```
+  - 위와 같이 제약조건을 추가하면 아래와 같은 DDL 생성됨
+  - ```sql
+    ALTER TABLE MEMBER
+      ADD CONSTRAINT NAME_AGE_UNIQUE  UNIQUE (NAME, AGE)
+    ```
+
+-------------------------------------------------
+
+### 5. 기본 키 매핑
+@Id 어노테이션을 이용해서 애플리케이션에서 직접 기본 키를 할당하는 방법 외에 데이터베이스가 생성해주는 값을 기본 키로 하고싶을 때 어떻게하나?
+
+#### 5.1 기본 키 직접 할당 전략
+ @Id 어노테이션으로 직접 매핑하고, 엔티티 객체를 생성할 때 개발자가 직접 키를 넣어주는 방식
+ ```java
+  @Id
+  @Column(name = "id")
+  private String id;
+
+  ...
+  
+  Member member = new Member();
+  member.setId("id1"); // 기본 키 직접 할당
+  em.persist(member);
+ ```
+ - 다음 자바 타입들만 @Id 어노테이션 기본 키로 사용이 가능함
+   - 자바 기본형
+   - 자바 래퍼(wrapper) 형
+   - String
+   - java.util.Date
+   - java.sql.Date
+   - java.math.BigDecimal
+   - java.math.BigInteger
+
+
+#### 5.2 IDENTITY 전략
+- 기본 키 생성을 데이터베이스에 위임하는 전략, 주로 MySQL, PostgreSQL, SQL Server, DB2에서 사용(e.g. MySQL AUTO_INCREMENT)
+- MySQL의 AUTO_INCREMENT를 기본 키로 사용했을 때 처럼 데이터베이스에 저장 후에 값을 알 수 있을 때 사용하는 전략
+- `@GeneratedValue` 어노테이션 사용
+- ```java
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
+
+  ...
+
+  Member member = new Member();
+  em.persist(member);
+
+  System.out.println("id : " + member.getId()); // 1 출력
+  ```
+
+- IDENTITY 전략과 최적화
+  - 키 값을 데이터베이스에 저장 후 알 수 있으므로, 키 값을 가져오기 위해 추가로 조회하게 됨
+  - JDBC3에서 추가된 Statement.getGeneratedKeys()를 상요하면 저장과 동시에 생성된 기본 키도 받아올 수 있음
+  - hibernate도 이러한 방식으로 최적화 되어있음
+  - ***또한, 저장을 해야 키 값을 알 수 있기 때문에 `em.persist()` 호출과 동시에 쓰기 지연을 하지 않고 바로 INSERT SQL을 쿼리함***
+
+
+#### 5.3 SEQUENCE 전략
+- 데이터베이스 시퀀스 : 유일한 값을 순서대로 생성하는 특별한 데이터베이스 오브젝트
+- SEQUENCE 전략은 이 시퀀스를 사용해서 기본 키를 생성하는 것
+- 시퀀스를 지원하는 오라클, PostgreSQL, DB2, H2 데이터베이스에서 사용 가능
+- IDENTITY 전략과 다른점?
+  - SEQUENCE 전략은 em.persist()를 호출할 때 먼저 데이터베이스 시퀀스를 사용해서 식별자를 조회
+  - 조회한 식별자를 엔티티에 할당한 후에 영속성 컨텍스트에 엔티티 저장
+  - 트랜잭션 커밋 시 플러시 할 때 데이터베이스에 저장함
+
+
+```sql
+  CREATE TABLE BOARD (
+    ID BIGINT NOT NULL PRIMARY KEY,
+    DATA VARCHAR(255)
+  )
+  // 시퀀스 생성
+  CREATE SEQUENCE BOARD_SEQ START WITH 1 INCREMENT BY 1;
+```
+- 위 코드와 같이 SQEUNCE를 생성해주고 아래와 같이 시퀀스를 매핑해서 사용
+
+```java
+  @Entity
+  @SequenceGenerator(
+    name = "BOARD_SEQ_GENERATOR",
+    sequenceName = "BOARD_SEQ", // 매핑할 데이터베이스 시퀀스 이름
+    initialValue = 1, allocationSize = 1
+  )
+
+  public class Board {
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,
+                    generator = "BOARD_SEQ_GENERATOR")
+    private Long id;
+  }
+```
+- **@SequenceGenerator** : 시퀀스 생성기("BOARD_SEQ_GENERATOR") 등록
+
+|:---|:---|:---|
+|속성|기능|기본값|
+|name|식별자 생성기 이름|필수|
+|sequenceName|데이터베이스에 등록되어 있는 시퀀스 이름|hibernate_<br>sequence|
+|initialValue|DDL 생성 시에만 사용됨. 시퀀스 DDL을 생성할 처음 시작 수 지정|1|
+|allocationSize|시퀀스 한 번 호출에 증가하는 수(성능 최적화에 사용)|**50**|
+|catalog,<br>schema|데이터베이스 catalog, schema 이름||
+
+
+#### 5.4 Table 전략
+- 키 생성 전용 테이블을 하나 만들고 여기에 이름과 값으로 사용할 컬럼을 만들어 데이터베이스 시퀀스를 흉내내는 전략
+- 테이블을 사용하기 때문에 모든 데이터베이스에 적용이 가능함
+```sql
+  create table MY_SEQUENCES (
+    sequence_name varchar(255) not null,
+    next_val bigint,
+    primary key ( sequence_name )
+  )
+```
+- 키 생성기를 사용할 때 마다 next_val이 증가함
+
+
+
+#### 5.5 Auto 전략
+- 데이터베이스에서 지원하는 전략을 고려해서 자동으로 선택해주는 전략
+- 오라클은 SEQUENCE, MySQL은 IDENTITY 선택
+- ```java
+  @Entity
+  public class Board{
+    @Id
+    //@GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValuen // strategy의 기본 값이 AUTO라서 그냥 이렇게만 적어도 됨
+    private Long id;
+  }
+  ```
+- 데이터베이스 변경 ㅇ시에도 코드 수정이 필요 없음
+- AUTO 사용 시 SEQUENCE나 TABLE 전략이 선택되면 시퀀스나 키 생성 테이블을 미리 만들어 둬야 함
+  - 스키마 자동 생성 기능을 사용하면 하이버네이트가 기본값으로 적절히 생성해줌
+
+
+-----------------------------------------------
+
+### 기본 키 매핑 정리
+- 직접 할당 : em.persist() 호출 전에 애플리케이션에 직접 식별자를 할당
+- SEQUENCE : 데이터베이스 시퀀스에서 식별자 값 획득 후 영속성 컨텍스트에 저장
+- TABLE : 데이터베이스 시퀀스 생성용 테이블에서 식별자 값 획득 후 영속성 컨텍스트에 저장
+- IDENTITY : 데이터베이스에 엔티티를 저장해서 식별자 값을 획득 후 영속성 컨텍스트에 저장
+
+
+-----------------------------------------------
+
+### 6. @Enumeration
+
+|:---|:---|:---|
+|속성|기능|기본값|
+|value| - EnumType.ORDINAL : enum 순서를 데이터베이스에 저장<br>- EnumTypes.String : enum 이름을 데이터베이스 저장|EnumType.Ordinal|
+
+-----------------------------------------------
+
+### 7. @Temporal
+- 날짜 타입(java.util.Date, java.util.Calendar)을 매핑할 때 사용
+
+|:---|:---|:---|
+|속성|기능|기본값|
+|value| - TemporalType.DATE : 날짜, 데이터베이스 date 타입과 매핑(예 : 2013-10-11)<br>- TemporalType.TIME : 시간, 데이터베이스 time 타입과 매핑(예 : 11:11:11)<br>- TemporalType.TIMESTAMP : 날짜와 시간, 데이터베이스 tiemstamp 타입과 매핑(예 : 2013-10-11 11:11:11)|필수 지정|
+
+-----------------------------------------------
+
+### 8. @Lob
+- 데이터베이스 BLOB, CLOB 타입과 매핑한다
+- 필드가 문자면 CLOB, 나머지는 BLOB으로 매핑함
+
+-----------------------------------------------
+
+### 9. Transient
+- 해당 필드는 매핑하지 않을 때 사용, 객체에 임시로 어떤 값을 보관할 때 사용
+- ```java
+    @Transient
+    private Integer tmp;
+  ```
+
+  -----------------------------------------------
+
+### 10. Access
