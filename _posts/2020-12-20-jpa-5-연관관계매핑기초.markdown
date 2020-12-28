@@ -1,0 +1,215 @@
+---
+layout: post
+title:  "5. 연관관계 매핑 기초"
+subtitle: "5. 연관관계 매핑 기초"
+date:   2020-12-20 17:26:41 +0900
+categories: dev
+tags : JPA
+---
+
+객체는 **참조**를 통해서 다른 객체들과 연관관계를 맺고, 테이블은 **외래키**를 이용해서 다른 테이블과 연관관계를 맺는다.
+
+**ORM에서 가장 어려운 부분이 이 객체의 연관관계와 테이블의 연관관계를 매핑하는 것**
+
+
+### 단방향 연관관계
+- 다대일(N:1) 연관관계
+- 한쪽에서만 참조가 되는 경우 (역참조 X)
+- ![1]({{"assets/img/dev/jpa/5/1.png" | absolute_url}})
+- 객체 연관관계 : Member.team 필드 사용
+  - 회원 객체는 Member.team 필드로 팀 객체와 연관관계를 맺음
+  - 팀 객체에서는 회원 객체를 조회할 수 없으므로 **단방향 연관관계** 성립
+  - 객체(참조)를 통한 연관관계는 항상 단방향 연관관계임
+- 테이블 연관관계 : MEMBER.TEAM_ID 사용
+  - 회원 테이블은 TEAM_ID 외래 키로 팀 테이블과 연관관계를 맺음 (LEFT INNER JOIN)
+  - 회원 테이블이 TEAM_ID 외래키를 통해 회원과 팀 조인이 가능, 반대로 팀과 회원도 조인이 가능하므로 **양방향 연관관계** 성립
+
+**여기서 연관관계 매핑이라 하면 `Member.team`과 `MEMBER.TEAM_ID`를 매핑하는 것**
+
+- ```java
+    @Entity
+    public class Member {
+      ...
+      @ManyToOne
+      @JoinColumn(name="TEAM_ID")
+      private Team team;
+
+      ...
+    }
+
+    @Entity
+    public class Team{
+      @Id
+      @Column(name = "TEAM_ID")
+      private String id;
+    }
+  ```
+
+- **@ManyToOne**
+  - 다대일(N:1) 관계라는 매핑 정보, 연관관계 매핑 시 다중성을 나타내는 어노테이션이 필수적으로 필요
+- **@JoinColumn(name="TEAM_ID")**
+  - 매핑할 외래키를 지정
+  - 생략 가능
+
+
+- **연관관계 사용**
+  - **저장**
+    - 연관관계 매핑을 한 엔티티를 저장하는 방법
+      ```java
+      Team team = new Team("team1");
+      em.persist(team);
+
+      Member member = new Member("member");
+      member.setTeam(team);
+      em.persist(member);
+      ```
+
+  - 조회
+    - 연관관계 매핑을 한 엔티티를 조회하는 방법  
+    - 객체그래프 탐색(객체의 연관관계(참조)를 사용한 조회)
+      ```java
+        Member member = em.find(Member.class, "member");
+        Team team = member.getTeam();
+      ```
+    - 객체지향 쿼리(JPQL) 사용
+      ```java
+        String jpql = "select m from Member m join m.team t where " + 
+                      "t.name=:teamName";  // 파라미터 바인딩
+        List<Member> resultList = em.createQuery(jpql, Member.class);
+                .setParameter("teamName", "팀1");
+                .getResultList();
+      ```
+
+  - 수정
+    - 연관관계 매핑을 한 엔티티를 수정하는 방법  
+      ```java
+        Team newTeam = new Team("team2");
+        
+        Member member = em.find(Member.class, "member");
+        member.setTeam(newTeam);
+      ```
+      
+  - **연관관계 제거**
+    ```java
+        Member member = em.find(Member.class, "member");
+        member.setTeam(null);
+      ```
+
+  - 연관된 엔티티 삭제
+    - 연관된 엔티티를 삭제하려면 기존에 있던 연관관계를 먼저 제거해야 함
+    - 그렇지 않으면 ***외래키 제약조건***에 의해 예외 발생
+    ```java
+        Member member = em.find(Member.class, "member");
+        member.setTeam(null);
+        em.remove(team);   
+    ```
+
+--------------------------------------------------
+
+### 양방향 연관관계
+- `회원 -> 팀`, `팀 -> 회원` 양방향으로 접근이 가능한 연관관계일 때?
+- ![2]({{"assets/img/dev/jpa/5/2.png" | absolute_url}})
+- 팀은 여러 멤버와 연관관계를 맺을 수 있으므로 컬렉션(List)로 정의
+- 반대로 데이터베이스는 기존의 단방향 연관관계에서 TEAM_ID 필드로 역참조가 가능함
+- 새로운 필드를 추가할 필요가 없음
+
+- **양방향 연관관계 매핑**
+  ```java
+    @Entity
+    public class Memeber{
+      ...
+      @ManyToOne
+      @JoinColumn(name="TEAM_ID")
+      private Team team;
+      ...
+    }
+
+    @Entity
+    public class Team{
+      ...
+      @OneToMany(mappedBy="team") // 반대쪽 매핑의 필드 값
+      private List<Member> members = new ArrayList<Member>();
+      ...
+    }
+  ```
+
+- 양방향 연관관계 조회
+  ```java
+      Team team = em.find(Team.class, "team");
+      List<Member> members = team.getMembers();
+  ```
+
+--------------------------------------------------
+
+### 연관관계의 주인
+- 엔티티를 양방향 연관관계로 설정하면 객체의 참조는 둘인데 외래키는 하나
+- 두 객체 연관관계 중 하나를 정해서 테이블의 외래키를 관리해야 하는데 이것을 **연관관계의 주인(owner)**라고 함
+- **양방향 매핑의 규칙 : 연관관계의 주인**
+  - 연관관계의 주인만 데이터베이스 연관관계와 매핑되고 **외래키를 관리(등록, 수정, 삭제)**할 수 있음
+  - 주인이 아닌 쪽은 **읽기**만 가능
+    - 어떤 연관관계를 주인으로 정할지는 `mappedBy` 속성을 사용
+    - 주인은 mappedBy 속성 사용 안해도 됨
+    - 주인이 아니면 mappedBy 속성을 사용해서 연관관계의 주인을 지정해야 함
+
+- ***연관관계의 주인은 외래키가 있는 곳으로 설정***
+  - Member / Team 예시에서는 Member 테이블에서 TEAM_ID를 외래키로 사용
+  - 따라서 Member를 연관관계의 주인으로 설정해야 함
+  - 주로 다대일 관계에서는 항상 다 쪽이 외래키를 가짐
+
+--------------------------------------------------
+
+### 양방향 연관관계 저장
+- 단방향 연관관계에서의 저장과 다르지 않음
+  ```java
+  Team team = new Team("team1");
+  em.persist(team);
+
+  Member member = new Member("member");
+  member.setTeam(team); // 연관관계 설정(연관관계의 주인)
+  em.persist(member);
+
+  //team.getMembers().add(member); // 이런짓이 필요할 것 같지만 안해줘도 된다
+  ```
+- 실제 테이블은 외래키로 관리되고, 외래키는 연관관계의 주인(Member)가 관리하기 때문에 엔티티 매니저가 Member 엔티티의 team 필드를 보고 외래키를 관리한다.
+
+--------------------------------------------------
+
+### 양방향 연관관계의 주의점
+- 양방향 연관관계를 설정하고 가장 많이 하는 실수?
+  - 연관관계의 주인에는 값을 입력하지 않고, 주인이 아닌 곳에만 값을 입력하는 것..
+  - ```java
+      Member member = new Member("member");
+      em.persist(member);
+
+      Team team = new Team("team");
+      team.getMembers().add(member);  // 연관관계 주인인 member에 추가 안하고, 여기에만 연관관계 추가
+      em.persist(team); 
+    ```
+  - 이렇게 되면 member의 외래키인 TEAM_ID는 null로 채워지게 됨
+
+- **순수한 객체까지 고려한 양방향 연관관계**
+  - 객체 관점에서는 양쪽 방향에 모두 값을 입력해주는 것이 가장 안전
+  - 그렇지 않으면 JPA를 사용하지 않았을 때 문제가 됨(`em.persist()`를 안했을 때)
+  - ```java
+      Member member = new Member("member");
+      Team team = new Team("team");
+      member.setTeam(team);
+      //em.persist(member);
+      team.getMembers();  // null
+    ```
+  - 아래처럼 양방향을 유지해주는게 가장 좋음
+  - ```java
+      member.setTeam(team);
+      team.getMembers().add(member);
+    ```  
+  - 이렇게 양쪽을 일일이 신경써주다 보면 문제가 발생할 수 있음(한쪽을 수정하는걸 까먹거나 등의)
+  - 그래서 보통은 아래처럼 setTeam() 메소드에서 양쪽의 연관관계를 모두 처리하도록 구현
+  - ```
+      public void setTeam(Team team){
+        if(this.team != null){ // 이전 팀과의 연관관계 제거 필수
+          this.team.getMembers().remove(this);
+        }
+        this.team = team;
+        team.getMembers().add(this);
+      }
+    ```
