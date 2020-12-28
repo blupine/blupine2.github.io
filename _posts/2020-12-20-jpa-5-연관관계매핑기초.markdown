@@ -204,7 +204,7 @@ tags : JPA
     ```  
   - 이렇게 양쪽을 일일이 신경써주다 보면 문제가 발생할 수 있음(한쪽을 수정하는걸 까먹거나 등의)
   - 그래서 보통은 아래처럼 setTeam() 메소드에서 양쪽의 연관관계를 모두 처리하도록 구현
-  - ```
+  - ```java
       public void setTeam(Team team){
         if(this.team != null){ // 이전 팀과의 연관관계 제거 필수
           this.team.getMembers().remove(this);
