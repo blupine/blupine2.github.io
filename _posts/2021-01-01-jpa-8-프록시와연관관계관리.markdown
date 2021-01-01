@@ -1,0 +1,10 @@
+---
+layout: post
+title:  "8. 프록시와 연관관계 관리"
+subtitle: "8. 프록시와 연관관계 관리"
+date:   2021-01-01 19:08:22 +0900
+categories: dev
+tags : JPA
+---
+
+- ![1]({{"assets/img/dev/jpa/7/1.png" | absolute_url}})
