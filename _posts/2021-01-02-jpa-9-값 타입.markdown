@@ -1,0 +1,217 @@
+---
+layout: post
+title:  "9. 값 타입"
+subtitle: "9. 값 타입"
+date:   2021-01-02 14:09:41 +0900
+categories: dev
+tags : JPA
+---
+
+#### JPA의 데이터 타입
+- 엔티티 타입
+  - @Entity로 정의하는 객체
+- 값 타입
+  - **기본값 타입**(basic value type)
+    - 자바 기본 타입(e.g. *int, double*)
+      
+    - 래퍼 클래스 (e.g. *Integer*)
+    - String
+  - **임베디드 타입**(embedded type, 복합 값 타입)
+    - JPA에서 정의해서 사용
+  - **컬렉션 값 타입**(collection value type)
+    - JPA에서 정의해서 사용
+<br>
+
+----------------------------------------------------
+
+### 1. 기본값 타입
+- String, int 등
+- 엔티티에 생명주기 의존
+- 다른 엔티티랑 기본값 타입은 공유될 수 없음
+
+<br>
+
+----------------------------------------------------
+
+### 2. 임베디드 타입(복합 값 타입)
+- 정의해서 사용하는 새로운 값 타입, int, String과 같이 값 타입임
+- ```java
+    @Entity
+    public class Member {
+      ...
+      private Date startDate;
+      private Date endDate;
+
+      private String city;
+      private String street;
+      private STring zipcode;
+    }
+  ```
+- 위와 같이 테이블 매핑을 위해 필드를 하나하나 만들다 보면 객체지향적인 특징을 잃게됨
+  - 회원이 지나치게 상세한 데이터를 가지고 있음
+  - 응집력을 떨어트림
+  - startDate, endDate 대신에 근무 기간 등의 새로운 데이터 타입으로 대체 가능
+  - city, street, zipcode도 묶어 새로운 데이터 타입으로 대체 가능
+
+- ```java
+    @Entity 
+    public class Member {
+      ...
+      @Embedded Period workperiod;
+      @Embedded Address homeaddress;
+      ...
+    }
+
+    @Embeddable
+    public class Period {
+      @Temporal(TemporalType.DATE) java.util.Date stratDate;
+      @Temporal(TemporalType.DATE) java.util.Date endDate;
+
+      public boolean isWork(Date date){ ... } // 값 타입을 위한 메소드 정의 가능
+    }
+
+    @Embeddable
+    public class Address {
+      @Column(name = "city")
+      private String city;
+      private String street;
+      private String zipcode;
+      ...
+    }
+  ```
+- ![1]({{"assets/img/dev/jpa/9/1.png" | absolute_url}})
+
+- 어노테이션
+  - @Embeddable : 값 타입을 정의하는 곳에 표시
+  - @Embedded   : 값 타입을 사용하는 곳에 표시
+
+- 임베디드 타입들의 장점
+  - 재사용성과 응집도가 높음
+  - Period.isWorkd()와 같이 해당 값 타입만 필요로 하는 메소드를 정의 가능
+  - 임베디드 타입을 포함한 모든 값 타입은 해당 타입을 소유한 엔티티에 생명주기를 의존함
+
+- 임베디드 타입의 테이블 매핑
+  - 임베디드 타입은 엔티티(객체)의 값이므로 임베디드 타입을 사용하기 전과 후에 **매핑하는 테이블은 변함 없음**
+  - ![2]({{"assets/img/dev/jpa/9/2.png" | absolute_url}})
+  - 객체와 테이블을 세밀하게(find-grained) 매핑하는 것이 가능
+  
+- 임베디드 타입과 연관관계
+  - 임베디드 타입은 다른 값 타입을 포함하거나, 다른 엔티티를 참조할 수 있음
+  - ![3]({{"assets/img/dev/jpa/9/3.png" | absolute_url}})
+  - ```java
+      @Entity
+      public class Memeber {
+        ...
+        @Embedded Address address;
+      }
+
+      @Embeddable
+      public class Address {
+        ...
+        @Embedded Zipcode zipcode; // 다른 값 타입 포함
+        @ManyToOne Object object;  // 엔티티 참조
+      }
+    ```
+
+- **@AttributeOverride**: 속성 재정의
+  - 같은 임베디드 타입을 두 개 이상 사용했을 때 테이블 매핑 시 컬럼명이 중복되는 문제가 있음
+  - ```java
+      @Entity
+      public class Member {
+        ...
+        @Embedded Address homeAddress;
+        @Embedded Address companyAddress;
+      }
+    ```
+  - 이때는 **@AttributeOverrides**를 사용해서 매핑정보를 재정의 할 수 있음
+  - ```java
+      @Entity
+      public class Member {
+        ...
+        @Embedded Address homeAddress;
+        @Embedded
+        @AttributeOverrides({
+          @AttributeOvveride(name="city", column=@Column(name="COMPANY_CITY")),
+          @AttributeOvveride(name="street", column=@Column(name="COMPANY_STREET")),
+          @AttributeOvveride(name="zipcode", column=@Column(name="COMPANY_ZIPCODE"))
+        })
+         Address companyAddress;
+      }
+    ```
+  - @AttributeOverrides는 엔티티에 설정 가능
+
+<br>
+
+----------------------------------------------------
+
+### 3. 값 타입과 불변 객체
+값 타입은 복잡한 객체들을 단순화 하기 위해 만든 개념, 따라서 단순하고 안전하게 다뤄야 함
+- **값 타입 공유 참조**
+  - 임베디드 타입과 같은 값 타입을 공유해서 사용할 경우 위험함
+  - ```java
+      member1.setHomeAddress(new Address("oldCity"));
+      Address address = member1.getHomeAddress();
+
+      address.setCity("newCity");
+      member2.setHomeAddress(address);
+    ```
+  - 회원1과 회원2가 address 인스턴스를 공유하므로, 변경된 내용도 함께 반영이 되는 **부작용**
+
+<br>
+
+- **값 타입 복사**
+  - 값 타입의 실제 인스턴스인 값을 공유하는 것도 위험
+  - ```java
+      member1.setHomeAddress(new Address("oldCity"));
+      Address address = member1.getHomeAddress();
+
+      Address address2 = address.clone();
+      // Address address2 = address;    // 참조를 복사하는 거기 때문에 공유의 문제 발생
+      address2.setCity("newCity");
+      member2.setHomeAddress(address2);
+  - **문제는 객체의 공유 참조를 근본적으로 피할 수 없다는 것**(위에서 주석친 부분)
+    - 그래서 보통 공유 참조 시 부작용이 생길 수 있을 땐 값을 변경 못하도록 setter 메소드를 없애버림(**불변 객체**)
+  
+<br>
+
+----------------------------------------------------
+
+### 4. 값 타입 컬렉션
+- 값 타입을 하나 이상 저장하려면 컬렉션에 보관
+- @ElementeCollection, @CollectionTable 어노테이션 사용
+- ```java
+    @Entity Member {
+      @Embedded
+      private Address address;
+      ...
+      @ElementCollection
+      @CollectionTable(name = "FAVORITE_FOODS",
+            joinColumns = @JoinColumn(name = "MEMBER_ID"))
+      @Column(name = "FOOD_NAME")
+      private Set<String> favoriteFoods = new HashSet<String>();
+
+      @ElementCollection
+      @CollectionTable(name = "ADDRESS" 
+            joinColumns = @JoinColumn(name = "MEMBER_ID"))
+      private List<Address> addressHistory = new ArrayList<Address>();
+    } 
+  ```
+  - ![4]({{"assets/img/dev/jpa/9/4.png" | absolute_url}})
+
+  - Set<String> favoriteFoods :
+    - 관계형 데이터베이스에는 컬렉션 저장이 불가능하므로 별도의 테이블을 만들어서 관리
+  - List<Address> addressHistory :
+    - 임베디드 타입인 Address를 사용하므로 별도의 테이블이 만들어져야 함
+
+  <br>
+
+----------------------------------------------------
+
+### 5. 값 타입 컬렉션의 제약사항
+- 값 타입 컬렉션에 보관된 값 타입들은 별도의 테이블에 저장됨
+- 값 타입은 엔티티와 다르게 식별자가 없기 때문에 값이 변경되면 추적이 어려움
+- 따라서 값 타입 컬렉션에 변경 사항이 발생하면, 주인 엔티티와 연관된 모든 데이터를 삭제하고 다시 저장함
+- 또한 값 타입 컬렉션을 매핑하는 테이블은 모든 컬럼을 묶어서 기본키를 구성해야 함
+  - null 불가, 중복 저장X
+- **따라서 실무에서는 값 타입 컬렉션이 매핑된 테이블에 데이터가 많으면 값 타입 컬렉션 대신 일대다 관계를 고려해야 함**
+
