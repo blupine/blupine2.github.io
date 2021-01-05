@@ -1,0 +1,513 @@
+---
+layout: post
+title:  "10. 객체지향 쿼리 언어"
+subtitle: "10. 객체지향 쿼리 언어"
+date:   2021-01-03 14:09:41 +0900
+categories: dev
+tags : JPA
+---
+
+
+### 1. 객체지향 쿼리 
+- JPA에서 엔티티를 조회하는 방법?
+  - EntityManager.find() 메소드
+  - 조건부 탐색을 하고싶을 땐? (e.g. 나이가 18세 이상인 회원을 조회)
+    - 모든 엔티티를 조회 후에 조건을 적용해야 함
+    - 데이터베이스 조회 시 필요한 내용을 최대한 거를 필요가 있음
+  
+- **JPQL(Java Persistence Query Language)**
+  - 테이블이 아닌 객체를 대상으로 검색하는 객체지향 쿼리
+  - SQL을 추상화 해서 특정 데이터베이스 SQL에 의존하지 않음
+
+- Criteria 쿼리
+  - JPQL을 편하게 작성하도록 도와주는 API, 빌더 클래스 모음
+
+- 네이티브 SQL
+  - JPA에서 JPQL대신 직접 SQL을 사용할 수 있도록 해줌
+
+- QueryDSL
+  - Criteria 쿼리처럼 JPQL을 편하게 작성하도록 도와주는 빌더 클래스 모음
+  - 비표준 오픈소스 프레임워크
+
+- JDBC 직접 사용
+- MyBatis와 같은 SQL 매퍼 프레임워크를 사용
+
+--------------------------------------------
+
+#### 1. JPQL 
+- 엔티티 객체를 조회하는 객체지향 쿼리
+- SQL과 비슷한 문법, ANSI 표준 SQL이 제공하는 기능을 유사하게 지원
+- SQL보다 간결한 문법
+  - 엔티티 직접 조회
+  - 묵시적 조인
+  - 다형성 지원
+
+- *SQL을 추상화 했기 때문에 특정 데이터베이스에 의존하지 않음*
+  - 데이터베이스 방언(Dialect)만 변경하면 JPQL을 수정하지 않아도 데이터베이스 변경 가능
+
+- ```java
+    String jpql = "select m from Member as m where m.username = 'kim'";
+    List<Member> result = em.createQuery(jpql, Member.class).getResultList();
+    /*
+      SELECT 
+          member.id as id,
+          member.age as age,
+          member.team_id as team,
+          member.name as name,
+      FROM
+          MEMBER member
+      WHERE
+          member.name = "kim"
+    */
+  ```
+  - m.username과 같이 데이터베이스 컬럼명이 아닌 *엔티티의 필드명*으로 조회 
+
+
+#### 2. Criteria 쿼리
+- JPQL을 생성하는 빌더 클래스
+- 문자가 아닌 프로그래밍 코드(함수 호출)로 JPQL 작성이 가능함
+  - e.g. query.select(m).where(...)
+  - 이게 왜 장점이냐?
+    - JPQL을 직접 작성할 경우 쿼리문에 오타가 있어도 런타임 시점에 오류가 발생함(문자기반 쿼리의 단점)
+- 장점
+  - 컴파일 시점에 오류 발견이 가능
+  - IDE를 사용하면 코드 자동완성을 지원
+  - 동적 쿼리를 작성하기 편함
+
+- 단점
+  - 너무 복잡하고 실용성이 없음
+
+- ```java
+    //String jpql = "select m from Member as m where m.username = 'kim'";
+
+    //Criteria 사용 준비
+    CriteriaBuilder cb = em.getCriteriaBuilder();
+    CriteriaQuery<Member> query = cb.createQuery(Member.class);
+
+    //루트 클래스(조회를 시작할 클래스)
+    Root<Member> m = query.from(Member.class);
+
+    //쿼리 생성
+    CriteriaQuery<Member> cq = 
+        query.select(m).where(cb.equal(m.get("username"), "Kim"));
+    List<Member> resultList = em.createQuery(cq).getResultList();
+  ```
+
+- ***Critera 대신 QueryDSL 사용을 권장***
+
+
+#### 3. QueryDSL
+- Criteria와 마찬가지로 JPQL 쿼리 빌더 역할
+- 코드 기반이면서 단순하고 사용이 쉬움
+- 실무에서 사용 권장 
+- ```java
+    //준비
+    JPAQuery query = new JPAQuery(em);
+    QMember member = QMember.member;
+
+    //쿼리, 결과 조회
+    List<Member> members = 
+        query.from(member).where(member.username.eq("kim")).list(member);
+  ```
+- 어노테이션 프로세서를 사용해서 쿼리 전용 클래스(QMember)를 만들어야 함
+
+#### 4. 네이티브 SQL
+- SQL을 직접 사용
+- JPA가 해결할 수 없는 특정 데이터베이스에 의존적인 문법을 사용해야 할 때
+  - e.g. 오라클(CONNECTED BY), 특정 데이터베이스에서만 동작하는 SQL 힌트
+- 데이터베이스를 변경할 경우 쿼리도 수정해야 함
+- ```java
+    String sql = "SELECT ID, AGE, TEAM_ID, NAME FROM MEMBER WHERE NAME = 'kim'";
+    List<Member> resultList = 
+            em.createNativeQuery(sql, Member.class).getResultList();
+  ```
+
+#### 5. JDBC 직접 사용, Mybatis와 같은 SQL 매퍼 프레임워크 사용
+- JDBC를 직접 사용하고 싶을 때?
+  - JPA는 JDBC 커넥션을 획득하는 API를 제공하지 않음
+  - JPA 구현체에서 제공하는 방법을 사용해야 함
+  - ```java
+      //하이버네이트에서 JDBC 커넥션 획득
+      Session session = em.unwrap(Session.class);
+      session.doWork(new Work(){
+        @Override
+        public void execute(Connection connection) throws SQLException {
+          // work..
+        }
+      });
+    ```
+
+- JDBC를 직접 사용하거나 Mybatis를 사용하는거 모두 JPA를 우회해서 데이터베이스를 접근하는 것
+  - JPA의 영속성 컨텍스트와 데이터베이스가 불일치 상태가 될 수 있음
+  - ***따라서 SQL 실행 전 반드시 flush()를 통해 영속성 컨텍스트를 데이터베이스와 동기화 해야 함***
+  - 스프링 프레임워크에서는 JPA와 Mybatis를 쉽게 통합이 가능함
+  - 스프링 프레임워크의 AOP를 활용해서 JPA를 우회하여 데이터베이스에 접근하는 메소드를 호출할 때마다 영속성 컨텍스트를 플러시 해주면 됨
+
+
+
+<br>
+
+--------------------------------------------
+
+### 2. JPQL
+- JPQL은 객체지향 쿼리 언어
+  - 테이블이 아닌 엔티티 객체를 대상으로 쿼리함
+- JPQL은 SQL을 추상화해서 특정 데이터베이스에 의존하지 않음
+- JPQL은 결국 SQL로 변환됨
+
+- **기본 문법과 쿼리 API**
+  - `SELECT`, `UPDATE`, `DELETE` 문 사용 가능. INSERT의 경우 em.persist()를 사용하면 되므로 없음
+  - ```SQL
+      select_문:: =
+          select_절
+          from_절
+          [where_절]
+          [groupby_절]
+          [having_절]
+          [orderby_절]
+      
+      update_문:: = update_절 [where_절]
+      delete_문:: = delete_절 [where_절]
+    ```
+
+  - **SELECT 문**
+    - `Select m FROM Member AS m where m.username = 'Hello'`
+    - 대소문자 구분
+      - 엔티티와 속성은 대소문자를 구분함 (Member, member)
+      - JPQL 키워드는 대소문자 구분을 하지 않음 (SELECT, FROM)
+    - 엔티티 이름
+      - JPQL에서 사용한 Member는 클래스 명이 아닌 엔티티 명
+      - 엔티티 명은 @Entity(name = "XXX") 어노테이션으로 지정될 수 있음
+    - 별칭은 필수
+      - JPQL은 별칭을 필수로 사용해야 함(e.g. Member as m)
+
+  - **TypeQuery, Query**
+    - TypeQuery : 반환 타입이 명확할 때 사용
+    - Query : 반환 타입이 명확하지 않을 때 사용
+    - em.createQuery() 메소드의 두 번째 인자에 반환 타입을 지정하면 TypeQuery를 반환하고, 지정하지 않으면 Query를 반환
+    - ```java
+        //TypeQuery 사용
+        TypedQuery<Member> query =
+              em.createQuery("SELECT m FROM Member m", Member.class);
+        List<Member> resultList = query.getResultList();
+      ```
+    - ```java
+        // Query 사용
+        Query query = em.createQuery("SELECT m FROM Member m");
+        List resultList = query.getResultList();
+      ```
+  - **결과 조회**
+    - query.getResultList() : 결과를 리스트로 반환, 결과가 없으면 빈 컬렉션 반환
+    - query.getSingleResult() : 결과가 정확히 하나일 때 사용
+      - 결과가 없으면 javax.persistence.NoResultException 예외 발생
+      - 결과가 1개보다 많으면 javax.persistence.NonUniqueResultException 예외 발생
+
+<br>
+
+- **파라미터 바인딩**
+JDBC는 위치 기준 파라미터 바인딩만 지원, JPQL은 이름 기준 파라미터 바인딩도 지원
+
+  - **이름 기준 파라미터**(Named parameters)
+    - 파라미터를 이름으로 구분하는 방법
+    - ```java
+        String usernameParam = "User1";
+        TypedQuery<Member> query = 
+              em.createQuery("SELECT m FROM MEMBER m where m.username = :username", Member.class);
+        query.setParameter("username", usernameParam);
+        List<Member> result = query.getResultList();
+      ```
+  - **위치 기준 파라미터**(Positional parameters)
+    - ? 다음에 위치 값을 주면 됨
+    - ```java
+        List<Member> members = 
+            em.createQuery("SELECT m FROM Member m WHERE m.username =?1", Member.class);
+            .setParameter(1, usernameParam);
+            getResultList();
+      ```
+  - 파라미터 바인딩이 아닌 String concatenation을 할 경우
+    - SQL 인젝션 같은 공격이 가능
+    - 컴파일된 SQL 재사용 불가능
+
+<br>
+
+- **프로젝션**
+  - SELECT 절에 조회할 대상을 지정하는 것
+    - SELECT [프로젝션 대상] FROM ...
+  - **엔티티 프로젝션**
+    - 엔티티 자체를 조회하는 것
+    - 조회하면 영속성 컨텍스트에서 관리됨
+    - ```sql
+        SELECT m FROM Member m
+        SELECT m.team FROM Member m
+      ```
+  - **임베디드 타입 프로젝션**
+    - 임베디드 타입은 조회의 시작점이 될 수 없음(아래처럼 사용 불가)
+    - ```java
+        String query = "SELECT a FROM Address a";
+      ```
+    - 아래처럼 엔티티를 통해 임베디드 타입을 조회해야 함
+    - ```java
+        String query = "SELECT o.address FROM Order o";
+        List<Address> addresses = em.createQuery(query, Address.class)
+                                  .getResultList();
+      ```
+    - ***임베디드 타입은 엔티티 타입이 아닌 값 타입, 따라서 영속성 컨텍스트에서 관리되지 않음***
+
+  - **스칼라 타입 프로젝션**
+    - 스칼라 타입 : 숫자, 날짜, 문자와 같은 기본 데이터 타입들
+    - 예를들어 전체 회원의 이름을 조회한다면?
+    - ```java
+        String query = "SELECT username FROM Member m";
+        List<String> usernames = em.createQuery(query, String.class)
+                                .getResultList();
+        // 중복 데이터 제거
+        // SELECT DISTINCT username FROM Member m
+      ```
+
+  - **여러 값 조회**
+    - 엔티티 단위가 아닌 필요한 데이터만 선택해서 조회할 때
+    - Query 사용, TypeQuery는 사용 불가
+    - ```java
+        Query query = em.createQuery("SELECT m.username, m.age FROM Member m");
+        List resultList = query.getResultList();
+        for(Object[] row : resultList){
+          // row[0] : uesrname
+          // row[1] : age
+        }
+      ```
+  - **new 명령어로 조회**
+    - 위에 코드에서는 바로 Object로 받아서 처리했지만 실제 애플리케이션에서는 DTO 사용
+    - SELECT 다음에 NEW 연산자와 반환받을 클래스를 지정해주면 해당 클래스 생성자에 JPQL 조회 결과를 바로 넘겨줄 수 있음
+    - ```java
+        TypedQuery<UserDTO> query =
+            em.createQuery("SELECT new jpabook.jpql.UserDTO(m.username, m.age) FROM Member m");
+        List<UserDTO> resultList = query.getResultList();
+      ```
+    - new 명령어 사용 시 주의사항
+      - 패키지 명을 포함한 전체 클래스 명을 입력해야 한다
+      - 순서와 타입이 일치하는 생성자가 필요하다
+
+  - **페이징 API**
+    - 데이터베이스마다 페이징을 처리하는 문법이 다름
+    - JPA에서는 페이징을 다음 두 API로 추상화
+      - `setFirstResult(int startPoisition` : 조회 시작 위치(0부터 시작)
+      - `setMaxResults(int maxResult` : 조회할 데이터 수
+    - ```java
+        TypedQuery query = 
+            em.createQuery("SELECT m FROM Member m ORDER BY m.username DESC");
+        
+        query.setFirstResult(10);
+        query.setMaxResults(20);
+        query.getResultList();
+      ```
+
+  - **집합과 정렬**
+    - 집합 함수
+      - COUNT : 결과 수를 구함, Long 타입 반환
+      - MAX, MIN : 최대, 최소 값 구함, 문자 숫자 날짜 등에 사용
+      - AVG : 평균값을 구함, 숫자타입만 사용 가능, Double 타입 반환
+      - SUM : 합을 구함, 숫자타입만 사용 가능
+      - NULL 타입은 무시하므로 통계에 잡히지 않음
+      - DISTINCT를 같이 이용하면 중복된 값을 제외하고 집합을 구할 수잇음
+    
+    - GROUP BY, HAVING
+      - GROUP BY
+        - 통계를 구할 때 특정 그룹끼리 묶어줌
+        - 예를들어 팀 이름으로 묶고싶을 땐
+        - ```java
+            select t.name, COUNT(m.age), SUM(m.age), AVG(m.age), MAX(m.age)
+            from Member m LEFT JOIN m.team t
+            GROUP BY t.name
+          ```
+      - HAVING
+        - GROUP BY와 함께 사용하며 그룹화한 통계 데이터를 기준으로 필터링할 때 사용
+        - 예를들어 위에서 그룹화 한 것들 중 평균 나이가 10살 이상을 조회할 때/
+        - ```java
+            select t.name, COUNT(m.age), SUM(m.age), AVG(m.age), MAX(m.age)
+            from Member m LEFT JOIN m.team t
+            GROUP BY t.name
+            HAVING AVG(m.age) >= 10
+          ```
+    
+    - 정렬 (ORDER BY)
+      - ASC : 오름차순(default)
+      - DESC : 내림차순
+      - ```java
+            select t.name, COUNT(m.age) as cnt
+            from Member m LEFT JOIN m.team t
+            GROUP BY t.name
+            ORDER BY cnt DESC
+        ```  
+
+  - 경로 표현식
+    - .(점)을 찍어서 객체 그래프를 탐색하는 것
+    - 상태 필드(state field) : 단순히 값을 저장하기 위한 필드
+    - 연관 필드(association field) : 연관관계를 위한 필드
+      - 단일 값 연관 필드 : @ManyToOne, @OneToOne, 대상이 엔티티 (e.g. m.team)
+      - 컬렉션 값 연관 필드 : @OneToMany, @ManyToMany, 대상이 컬렉션(e.g. m.orders)
+
+     - ```java
+        @Column(name = "name")
+        private String name; // 상태 필드
+        private Integer age; // 상태 필드
+
+        @ManyToOne(..)
+        private Team tea; // 연관 필드(단일 값)
+
+        @OneToMany(..)
+        private List<Order> orders; // 연관 필드(컬렉션 값)
+      ```
+
+    - 경로 표현식의 특징
+      - 상태 필드 경로 : 경로 탐색의 끝으로 더 탐색이 불가능함
+      - 단일 값 연관 경로 : 묵시적으로 내부 조인 발생, 계속 탐색이 가능함
+      - 컬렉션 값 연관 경로 : 묵시적으로 내부 조인 발생, 더 탐색이 불가능함. 단 FROM 절에서 조인을 통해 별칭을 얻을 경우 탐색 가능
+    - 
+<br>
+
+### JPQL 조인
+- 내부 조인 (INNERT JOIN)
+  - ```java
+      String teamName = "teamA";
+      String query = "SELECT m FROM Member m INNER JOIN m.team t "
+                    + "WHERE t.name = :teamName";
+      List<Member> members = em.createQuery(query, Member.class)
+                            .setParameter("teamName", teamName)
+                            .getResultList();
+    ```
+  - JPQL은 조인을 할때도 연관관계 필드를 사용함
+    - `m.team t`
+  - ```java
+      String SQL = "SELECT M.ID, M.AGE ... FROM MEMBER M 
+                    INNER JOIN TEAM T ON M.TEAM_ID = T.TEAM_ID
+                    WHERE T.NAME = ?
+                    "
+      String JPQL = "select m FROM Member m INNER JOIN m.team t
+                    WHERE t.name = ?"
+    ```
+
+- 외부 조인 (OUTER JOIN)
+  - ```java
+      SELECT m FROM Member m LEFT [OUTER] JOIN m.team t
+    ```
+  - OUTER는 생략 가능
+
+- 컬렉션 조인
+  - 일대다 또는 다대다 관계처럼 컬렉션을 사용하는 곳에서 조인을 할 때
+  - ```java
+      // 컬렉션 값 연관 필드로 외부 조인
+      SELECT t, m FROM Team t LEFT JOIN t.members m
+    ```
+
+- 세타 조인
+  - 전혀 관계없는 엔티티도 조인할 수 잇음
+  - ```java
+      //JPQL
+      SELECT COUNT(m) FROM Member m, Team t WHERE m.username = t.name
+
+      //SQL
+      SELECT COUNT(M.ID)
+      FROM
+          MEMBER M CROSS JOIN TEAM T
+      WHERE
+          M.USERNAME = T.NAME
+    ```
+
+- JOIN ON 절(JPA 2.1)
+  - 조인 대상을 필터링 할 때
+  - ```java
+      //JPQL
+      SELECT m, t FROM Member m LEFT JOIN m.team t ON t.name ="A"
+
+      //SQL
+      SELECT m.* t.* FROM Member m
+      LEFT JOIN Team t ON m.TEAM_ID=t.id and t.name = "A"
+    ```
+
+- **`페치(fetch) 조인`**
+  - JPQL에서 성능 최적화를 위해 제공하는 기능
+  - 연관된 엔티티나 컬렉션을 한 번에 같이 조인하는 기능
+  - ***동적으로 사용하는 즉시로딩인데 LAZY, EAGER와는 다르게 연관 엔티티도 하나의 쿼리로 함께 가져옴 (N+1 문제 해결)***
+  - 페치조인은 별칭(as) 사용이 불가능 (하이버네이트는 별칭 사용 지원 함)
+  - `join fetch` 명령어로 사용
+    - 페치 조인 ::= `[ LEFT [OUTER] | INNER ] JOIN FETCH 조인경로`
+  - **엔티티 페치 조인**
+    - ```java
+        // JPQL - 회원과 팀을 함께 조회함
+        select m from Member m join fetch m.team
+        
+        // SQL
+        SELECT 
+          M.*, T.*
+        FROM MEMBER M
+        INNER JOIN TEAM T ON M.TEAM_ID=T.ID
+      ```
+    - 회원과 팀을 지연로딩으로 설정헀어도 쿼리 결과는 프록시가 아닌 실제 엔티티가 됨
+  - **컬렉션 페치조인**
+    - ```java
+        // JPQL
+        select m from Team t join fetch t.members where t.name="teamA"
+
+        // SQL
+        SELECT 
+          T.*, M.*
+        FROM TEAM T
+        INNER JOIN MEMBER M ON T.ID = M.TEAM_ID
+        WHERE T.NAME="teamA"
+      ```
+    - 팀과 멤버는 일대다 관계, 위와 같이 컬렉션 조인을 할 경우 다음과 같은 결과
+    - ![1]({{"assets/img/dev/jpa/10/1.png" | absolute_url}})
+    - 팀 테이블에서 "teamA"는 하나지만 조회 결과 2건으로 결과가 증가함
+    - 이처럼 일대다 조인은 결과가 증가할 수 있음 (일대일, 다대일은 증가 안함)
+
+
+  - **페치 조인과 DISTINCT**
+    - 일대다 조인을 할 때 결과가 늘어나는 상황에서 중복을 제거할 때 사용
+    - 위에서 다대일 관계에서 컬렉션을 조회하면 조회 결과는 아래와 같이 여러개의 리스트가 반환됨
+    - ![2]({{"assets/img/dev/jpa/10/2.png" | absolute_url}})
+    - 같은 Team 엔티티가 중복으로 반환된 상황
+    - JPQL의 DISTINCT 명령어는 SQL에서도 DISTINCT를 처리하고 애플리케이션에서도 이런 상황에서 중복을 제거해줌
+    - ```java
+        select distinct t
+        from Team t join fetch t.members
+        where t.name = "teamA"
+      ```
+    - ![3]({{"assets/img/dev/jpa/10/3.png" | absolute_url}})
+    - SQL의 DISTINCT 결과는 왼쪽과 같이 차이가 없음(중복된 데이터가 없으므로)
+    - 애플리케이션의 입장에서는 오른쪽과 같이 같은 식별자를 가진 중복 엔티티가 제거된 상태로 반환됨
+
+  - 페치 조인과 일반 조인의 차이
+    - 일반 조인 실행시 연관된 엔티티를 함께 조회하지 않음
+    - JPQL은 결과를 반환할 때 연관관계를 고려하지 않음
+    - 단지 SELECT 절에 지정한 엔티티만 조회함
+      - 프록시나 아직 초기화되지 않은 컬렉션 래퍼를 반환, 후에 지연로딩으로 사용 시에 조회
+    - 페치 조인은 연관 엔티티를 쿼리 시점에 조회하기 때문에 지연 로딩이 발생하지 않음
+      - 따라서 준영속 상태에서도 객체 그래프 탐색이 가능함
+
+    - 페치 조인은 연관된 엔티티도 함께 조회(즉시로딩)
+    - 즉시로딩과는 또 다른게 **SQL 한번**에 연관된걸 다 조회할 수 있음
+  
+  - 페치 조인의 특징과 한계
+    - 페치 조인 대상에는 별칭을 줄 수 없음
+      - 하이버네이트는 지원하지만 사용하지 않을 것을 권장
+      - 연속적인 페치 조인을 하는 경우가 아니면 사용해선 안됨
+      - 왜 사용하면 안되냐?
+        - ```java
+            select t from Team t join fetch t.members m where m.age > 10
+          ```
+        - 이런 쿼리를 사용한다고 했을 때 m.age가 10 이상인 컬렉션만 반환됨
+        - 연관된 모든 members 엔티티가 아닌 일부 엔티티만 가져오게 되고 만약 이게 2차 캐시랑 같이 사용되면 다른 엔티티가 members 연관관계를 조회해도 캐싱된 개수를 가져갈 것
+        - 엔티티를 조회할 때 연관관계는 모두 가져오는 것이 객체 그래프 탐색의 사상?
+     
+    - 둘 이상의 컬렉션은 페치 조인 할 수 없음
+      - 컬렉션 * 컬렉션은 Cartesian 곱.. 결과가 엄청 많아질 수 있기 때문에 제한
+    - 컬렉션을 페치 조인하면 페이징 API(setFirstResult, setMaxResults)를 사용할 수 없음
+      - 일대일, 다대일 같은 단일 값 연관 필드들은 페치 조인해도 페이징 가능(DISTINCT 부분에서 설명했듯이 일대다 관계는 중복된 데이터가 발생하기 때문에)
+      - 하이버네이트는 경고 로그를 남기고 메모리에서 페이징함 (매우 위험..)
+
+
+
+
+
+
+
