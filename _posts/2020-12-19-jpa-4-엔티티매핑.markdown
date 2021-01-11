@@ -201,7 +201,7 @@ JPA는 데이터베이스 스키마를 자동 생성하는 기능을 지원한�
   public class Board{
     @Id
     //@GeneratedValue(strategy = GenerationType.AUTO)
-    @GeneratedValuen // strategy의 기본 값이 AUTO라서 그냥 이렇게만 적어도 됨
+    @GeneratedValue // strategy의 기본 값이 AUTO라서 그냥 이렇게만 적어도 됨
     private Long id;
   }
   ```
