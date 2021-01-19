@@ -169,6 +169,7 @@ tags : JPA
       // Address address2 = address;    // 참조를 복사하는 거기 때문에 공유의 문제 발생
       address2.setCity("newCity");
       member2.setHomeAddress(address2);
+    ```
   - **문제는 객체의 공유 참조를 근본적으로 피할 수 없다는 것**(위에서 주석친 부분)
     - 그래서 보통 공유 참조 시 부작용이 생길 수 있을 땐 값을 변경 못하도록 setter 메소드를 없애버림(**불변 객체**)
   
