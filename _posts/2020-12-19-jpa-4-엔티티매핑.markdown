@@ -201,11 +201,11 @@ JPA는 데이터베이스 스키마를 자동 생성하는 기능을 지원한�
   public class Board{
     @Id
     //@GeneratedValue(strategy = GenerationType.AUTO)
-    @GeneratedValuen // strategy의 기본 값이 AUTO라서 그냥 이렇게만 적어도 됨
+    @GeneratedValue // strategy의 기본 값이 AUTO라서 그냥 이렇게만 적어도 됨
     private Long id;
   }
   ```
-- 데이터베이스 변경 ㅇ시에도 코드 수정이 필요 없음
+- 데이터베이스 변경 시에도 코드 수정이 필요 없음
 - AUTO 사용 시 SEQUENCE나 TABLE 전략이 선택되면 시퀀스나 키 생성 테이블을 미리 만들어 둬야 함
   - 스키마 자동 생성 기능을 사용하면 하이버네이트가 기본값으로 적절히 생성해줌
 
@@ -226,6 +226,8 @@ JPA는 데이터베이스 스키마를 자동 생성하는 기능을 지원한�
 |:---|:---|:---|
 |속성|기능|기본값|
 |value| - EnumType.ORDINAL : enum 순서를 데이터베이스에 저장<br>- EnumTypes.String : enum 이름을 데이터베이스 저장|EnumType.Ordinal|
+
+Ordinal 쓰면 망함.. 중간에 EnumType을 추가하게 될 경우 문제 발생
 
 -----------------------------------------------
 
