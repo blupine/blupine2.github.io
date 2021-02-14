@@ -17,7 +17,7 @@ Controller에 전달되는 파라미터(form)를 검증할 수 있는 방법
   - `supports` : 파라미터로 전달된 클래스가 검증이 가능한지 여부를 반환
   - `validate` : 실제 검증 로직, 실패 시 errors 설정
 
-### [예제 코드]({{"https://github.com/blupine/studyolleh/commit/be70a9ce1df259a1358c2d2e3162e852f0aa3dfb"}})
+### [예제 코드 링크]({{"https://github.com/blupine/studyolleh/commit/be70a9ce1df259a1358c2d2e3162e852f0aa3dfb"}})
 
 
 ```java
