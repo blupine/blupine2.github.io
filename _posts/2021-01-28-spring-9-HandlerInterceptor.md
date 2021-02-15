@@ -36,6 +36,9 @@ tags : Spring
 
 #### Interceptor 등록
 
+
+- [구현 코드 커밋]({{"https://github.com/blupine/studyolleh/commit/f078fb54529c1702a85fcab168d19a1c4c60a4e6"}})
+
 ##### HandlerInterceptor 인터페이스 구현체 작성
 ```java
 /* 모든 요청에 대해서 notification이 있는지 검사 후 model 속성에 추가해줌 */
@@ -74,13 +77,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(notificationInterceptor);
     }
 }
-``
-
-
-
-
-- [구현 코드 커밋]({{"https://github.com/blupine/studyolleh/commit/f078fb54529c1702a85fcab168d19a1c4c60a4e6"}})
-
+```
 
 
 
