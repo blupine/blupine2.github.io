@@ -13,24 +13,24 @@ tags : Spring
 #### REpresentational State Transfer
 
 
-#### 먼저 우리가 흔히 알고있는 REST API란?
+### 먼저 우리가 흔히 알고있는 REST API란?
 ##### Microsoft REST API Guidelines (2016)
 - URI는 https://{serviceRoot}/{colelction}/{id} 형식이어야 한다
 - GET, PUT, DELETE, POST, HEAD, PATCH, OPTIONS를 지원해야 한다
 - API 버저닝은 Major.minor로 하고 URI에 버전 정보를 포함시킨다
 - 등등..
 
-이를 본 Roy T.Fielding(REST 개념을 처음 제시한 사람)은 **'이건 REST API가 아니고 HTTP API이다' **
+이를 본 Roy T.Fielding(REST 개념을 처음 제시한 사람)은 **'이건 REST API가 아니고 HTTP API이다'**
 
 
-**"REST API를 위한 최고의 버저닝 전략은 버저닝을 안 하는 것"**
+### "REST API를 위한 최고의 버저닝 전략은 버저닝을 안 하는 것"
 
 
 
-##### REST API?
+### REST API?
 - REST 아키텍처를 따르는 API
 
-##### REST?
+### REST?
 - 분산 하이퍼미디어 시스템(e.g. 웹)을 위한 아키텍처 스타일(=제약조건의 집합)
 - 즉, 이 제약조건들을 모두 지켜야 REST를 따른다라고 할 수 있음
 - REST를 구성하는 다른 아키텍처 스타일들
@@ -59,6 +59,8 @@ tags : Spring
 - 반대로 아래와 같이 추가를 해주면?
 - ![2]({{"assets/img/dev/spring/11/2.png" | absolute_url}})
 - Content-type을 보고 메시지가 JSON 형식임을 알 수 있고, json-patch라는 명세를 찾아가 메시지(json)을 해석하도록 해줌
+- 확장 가능한 커뮤니케이션
+  - 서버나 클라이언트가 변경되더라도 오고가는 메시지는 언제나 self-descriptive 하므로 해석이 가능하다.
 
 ##### HATEOAS
 - 애플리케이션의 상태는 하이퍼링크를 통해 전이되어야 함
@@ -70,3 +72,6 @@ tags : Spring
   - 서버와 클라이언트가 각각 독립적으로 진화한다.
   - **서버의 기능이 변경되어도 클라이언트를 업데이트할 필요가 없다**
     - 즉, 신규 API 버전이 나와도 변경된 링크로 클라이언트에게 전달하고, 클라이언트가 서버 메시지를 해석한 링크로 상태 전이를 한다면 클라이언트는 수정될 필요가 없음
+- 애플리케이션 상태 전이의 late binding
+  - 어디서 어디로 전이가 가능한지 미리 결정되지 않는다. 어떤 상태로 전이가 완료되고 나서야 그 다음 전이될 수 있는 상태가 결정된다. 
+  - **링크는 동적으로 변경될 수 있다.**
