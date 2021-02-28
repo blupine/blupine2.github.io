@@ -8,7 +8,7 @@ tags : Spring
 ---
 
 
-["그런 REST API로 괜찮은가"]({{"https://brunch.co.kr/@springboot/491"}})를 보고 평소에 알고있던 REST API와는 많이 다르다는 생각을 했다.
+["그런 REST API로 괜찮은가"]({{"https://www.youtube.com/watch?v=RP_f5dMoHFc"}})를 보고 평소에 알고있던 REST API와는 많이 다르다는 생각을 했다.
 
 #### REpresentational State Transfer
 
