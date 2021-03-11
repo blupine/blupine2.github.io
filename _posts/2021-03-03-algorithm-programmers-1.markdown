@@ -14,7 +14,7 @@ tags : programmers
 
 query를 위해서 "-"로 만들어질 수 있는 모든 조합도 map으로 생성
 
-{% highlight c %}
+{% highlight c++ %}
 #include <string>
 #include <vector>
 #include <map>
