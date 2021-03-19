@@ -13,11 +13,14 @@ tags : programmers
 
 각 좌표가 아직 counting된 적이 없으면(!visited) area 카운트를 증가시키고 해당 좌표에서 bfs를 시작, 최대 넓이를 구함
 
+
+
 {% highlight java %}
+
 import java.util.Queue;
 import java.util.LinkedList;
 class Solution {    
-    public static int[][] dir = {{0, 1}, {1, 0}, {-1, 0}, {0, -1}};
+    public static int[][] dir = { {0, 1}, {1, 0}, {-1, 0}, {0, -1} };
     public int[][] visited, gpicture;
     public int max_size, area, gm, gn;
 
