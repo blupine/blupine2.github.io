@@ -82,7 +82,8 @@ class Solution {
                     char org = cBoard[a.r1][a.c1];
                     cBoard[a.r1][a.c1] = cBoard[a.r2][a.c2] = '.';
                     visited[i] = true;
-                    dfs(str + mapkey[i]);
+                    str += mapkey[i];
+                    dfs(str);
                     // visited[i] = false;
                     // cBoard[a.r1][a.c1] = cBoard[a.r2][a.c2] = org;
                 }
@@ -100,16 +101,11 @@ class Solution {
             // 첫 번째 좌표 기준으로 수직 아래 방향으로 내려가는게 가능한지 확인
             if(cBoard[r][c1] != '.') break;
             if(r == r2) {                
-                for(int c = c1; c <= c2; c++){  // c1이 c2보다 작을 때
+                int lc = c1 < c2 ? c1 : c2;
+                int rc = c1 < c2 ? c2 : c1;
+                for(int c = lc; c <= rc; c++){
                     if(cBoard[r2][c] != '.') break;
-                    if(c == c2) {
-                        cBoard[r1][c1] = cBoard[r2][c2] = org;
-                        return true;
-                    }
-                }
-                for(int c = c2; c <= c1; c++){  // c2가 c1보다 작을 때
-                    if(cBoard[r2][c] != '.') break;
-                    if(c == c1) {
+                    if(c == rc) {
                         cBoard[r1][c1] = cBoard[r2][c2] = org;
                         return true;
                     }
@@ -121,16 +117,12 @@ class Solution {
             // 첫 번째 좌표 기준으로 수직 아래, 또는 위 방향으로 가능한지 확인
             if(cBoard[r][c2] != '.') break;
             if(r == r2) {
-                for(int c = c1; c <= c2; c++){  // c1이 c2보다 작을 때
+                int lc = c1 < c2 ? c1 : c2;
+                int rc = c1 < c2 ? c2 : c1;
+
+                for(int c = lc; c <= rc; c++){
                     if(cBoard[r1][c] != '.') break;
-                    if(c == c2) {
-                        cBoard[r1][c1] = cBoard[r2][c2] = org;
-                        return true;
-                    }
-                }
-                for(int c = c2; c <= c1; c++){  // c2가 c1보다 작을 때
-                    if(cBoard[r1][c] != '.') break;
-                    if(c == c1) {
+                    if(c == rc) {
                         cBoard[r1][c1] = cBoard[r2][c2] = org;
                         return true;
                     }
