@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "2019 카카오 개발자 겨울 인턴십] 불량 사용자"
+title:  "[2019 카카오 개발자 겨울 인턴십] 불량 사용자"
 subtitle: ""
 date:   2021-03-25 23:33:55 +0900
 categories: algorithm
@@ -13,12 +13,12 @@ tags : programmers
 
 1. 불량 사용자를 순서대로 모든 사용자에 맞춰보면서 dfs 수행
 
-2. 불량 사용자의 '*' 문자에 해당하는 위치를 비교 대상 사용자도 '*'로 마스킹 해서 비교
+2. 불량 사용자의 '\*' 문자에 해당하는 위치를 비교 대상 사용자도 '\*'로 마스킹 해서 비교
 
 3. dfs를 이용했기 때문에 불량 사용자 조합은 중복으로 나올 수 있음 (ex) ["frodo", "fradi"] == ["fradi", "frodo"]
     - 중복 조합을 관리하기 위해, 찾은 사용자 조합을 정수형으로 만들어서 set으로 관리
     - ex) 1, 2, 3번째 사용자가 차단 목록 조합으로 만들어지면 key = 123으로 set에 추가
-    
+
 ```java
 import java.util.ArrayList;
 import java.util.Arrays;
