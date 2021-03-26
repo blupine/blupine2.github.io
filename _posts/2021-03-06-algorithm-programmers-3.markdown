@@ -17,6 +17,67 @@ tags : programmers
 이후 순회하면서 각 초에 누적 재생 시간을 구함 (sum[i] = sum[i-1] - arr[i-1] + arr[i + adv_length - 1])
 
 
+#### JAVA 풀이
+{% highlight java %}
+class Solution {
+    int[] play;
+    long[] sum;
+    public String solution(String play_time, String adv_time, String[] logs) {
+        int play_sec = timeToSec(play_time);
+        int adv_sec = timeToSec(adv_time);
+
+        play = new int[play_sec];
+        sum = new long[play_sec];
+        
+        for(String log : logs) {
+            int start_sec = timeToSec(log.substring(0, 8));
+            int end_sec = timeToSec(log.substring(9, 17));
+            for(int i = start_sec ; i < end_sec ; i++) {
+                play[i] += 1;
+            }
+        }
+        
+        for(int j = 0 ; j < adv_sec ; j++) {
+            sum[0] += play[j];
+        }    
+        
+        long max = sum[0];
+        int max_idx = 0;
+        
+        for(int i = 1 ; i < play_sec - adv_sec + 1; i++) {
+            sum[i] = sum[i - 1] - play[i - 1] + play[i + adv_sec - 1]; 
+            if(sum[i] > max) {
+                max = sum[i];
+                max_idx = i;
+            }
+        }
+        return secToTime(max_idx);
+    }
+    
+    public int timeToSec(String time) {
+        int sec = 0;
+        sec += Integer.parseInt(time.substring(0, 2)) * 3600;
+        sec += Integer.parseInt(time.substring(3, 5)) * 60;
+        sec += Integer.parseInt(time.substring(6, 8));
+        return sec;
+    }
+    
+    public String secToTime(int sec) {
+        String time = "";
+        int h = sec / 3600;
+        int m = (sec % 3600) / 60;
+        int s = (sec % 60);
+        
+        time += ((h < 10) ? "0" + h : h) + ":";
+        time += ((m < 10) ? "0" + m : m) + ":";
+        time += (s < 10) ? "0" + s : s;
+        return time;
+    }
+}
+{% endhighlight %}
+
+
+#### C++ 풀이
 {% highlight c++ %}
 
 #include <string>
