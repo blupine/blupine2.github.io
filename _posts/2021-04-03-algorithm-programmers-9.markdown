@@ -2,7 +2,7 @@
 layout: post
 title:  "[2020 KAKAO BLIND RECRUITMENT] 블록 이동하기"
 subtitle: ""
-date:   2021-04-06 23:33:55 +0900
+date:   2021-04-03 23:33:55 +0900
 categories: algorithm
 tags : programmers
 ---
@@ -20,7 +20,7 @@ tags : programmers
 import java.util.Queue;
 import java.util.LinkedList;
 class Solution {
-    int[][] dir = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    int[][] dir = { {-1, 0}, {1, 0}, {0, -1}, {0, 1} };
     boolean[][][] visit;
     int[][] gBoard;
     int N;
