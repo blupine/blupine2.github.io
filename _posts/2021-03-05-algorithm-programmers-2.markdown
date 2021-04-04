@@ -6,7 +6,7 @@ date:   2021-03-05 14:25:23 +0900
 categories: algorithm
 tags : programmers
 ---
-### [문제링크]({{"https://programmers.co.kr/learn/courses/30/lessons/72412"}})
+### [문제링크]({{"https://programmers.co.kr/learn/courses/30/lessons/72415"}})
 
 ## [풀이]
 
