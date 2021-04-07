@@ -82,8 +82,7 @@ class Solution {
                     char org = cBoard[a.r1][a.c1];
                     cBoard[a.r1][a.c1] = cBoard[a.r2][a.c2] = '.';
                     visited[i] = true;
-                    str += mapkey[i];
-                    dfs(str);
+                    dfs(str + mapkey[i]);
                     // visited[i] = false;
                     // cBoard[a.r1][a.c1] = cBoard[a.r2][a.c2] = org;
                 }
