@@ -54,5 +54,16 @@ public class AccountController {
         webDataBinder.addValidators(signUpFormValidator);   
     }
 }
+```
 
+```java
+@PostMapping(SIGNUP_URL)
+public String signUpSubmit(@Valid SignUpForm signUpForm, Errors errors){
+    if (errors.hasErrors()) {
+        return SIGNUP_VIEW_NAME;
+    }
+    Account account = accountService.processNewAccount(signUpForm);
+    accountService.login(account);
+    return "redirect:/";
+}
 ```
