@@ -44,7 +44,7 @@ tags : JPA
         Member member = jpa.find(Member.class, memberId);
         ```
     - `find()` 메소드는 객체 하나를 데이터베이스에서 조회함
-    - JPA는 객체와 매핑정보를 보고 `SELECT SQL`을 생성하 쿼리함
+    - JPA는 객체와 매핑정보를 보고 `SELECT SQL`을 생성하여 쿼리함
   - 수정 기능
     - ```java
         Member member = jpa.find(Member.class, memberId);
