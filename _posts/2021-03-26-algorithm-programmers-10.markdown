@@ -12,7 +12,7 @@ tags : programmers
 ## [풀이]
 
 
-```java
+```c++
 #include <string>
 #include <vector>
 #include <set>
