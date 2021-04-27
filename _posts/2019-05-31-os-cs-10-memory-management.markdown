@@ -55,6 +55,5 @@ comments: true
 
 ### Fixed Partitioning
   - Equal-size partition
-  - 
   - Unequal-size partition
 
