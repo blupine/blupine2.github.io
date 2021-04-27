@@ -18,7 +18,7 @@ comments: true
   - HDD, SSD에서 메인메모리로 올 땐 항상 페이지 단위로 오게 됨
 - `Segment` 
   - 보조기억장치에 있는 가변 길이의 데이터 블록.
-  - 프로그램의 `logcal`한 구성 단위 `e.g) .init, .text, .rodata, .data, .bss`
+  - 프로그램의 `logical`한 구성 단위 `e.g) .init, .text, .rodata, .data, .bss`
   - 메인메모리의 가용 공간에 전체 세그먼트가 복사되어서 사용? `(segmentation)`
   - 페이지로 나뉘어져서 개별로 메인메모리에 복사될 수도 있음 `(segmented paging)`
   

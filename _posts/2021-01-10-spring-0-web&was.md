@@ -13,7 +13,7 @@ tags : Spring
 - 정적 리소스 제공 (html, css, js, image 등)
 - 기타 부가기능
   - 클라이언트의 요청을 WAS에 전달, WAS의 처리 결과를 클라이언트에게 전달
-- Apache, Nginx, 
+- Apache, Nginx
 
 ### 웹 애플리케이션 서버(WAS - Web Application Server)
 - HTTP 기반으로 동작
