@@ -70,7 +70,7 @@ comments: true
           - Offline algorithm (불가능하기 때문에 Offline에서만 적용)
         - 다른 알고리즘의 성능에 대한 `upper bound` 제공
           - 가장 최적의 해임
-          - `Belady's optimal algorithm`, `MIN`, `OPT` 등으로 불
+          - `Belady's optimal algorithm`, `MIN`, `OPT` 등으로 불림
 
 
       - **FIFO(First In First Out) Algorithm**
