@@ -22,7 +22,7 @@ comments: true
   - Scope : access가 가능한 영역
 - Context Switching
   - Context?
-    - PC, General Purpose Register ,Floating Pointer Register, Status Registers, and Various kernel data structures (page table, file table)
+    - PC, General Purpose Register, Floating Pointer Register, Status Registers, and Various kernel data structures (page table, file table)
     - 이걸 PCB라고 함, 그 중에서 register block을 context라고 함
   - Switching?
     - 현재 실행하는 프로세스의 Context를 저장하고, 다음에 실행할 프로세스의 state를 복구
