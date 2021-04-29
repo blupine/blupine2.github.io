@@ -61,7 +61,6 @@ comments: true
    - 실시간 시스템의 개념 확장
      - Hard Realtime System(경성 실시간 시스템)
      - Soft Realtime System(연성 실시간 시스템)
-     - 
 
 #### 용어 정리
  - Multiprogramming : 여러 프로그램이 메모리에 올라가 있음을 강조
