@@ -19,7 +19,7 @@ comments: true
   - ABI (Application Binary Interface)
     - 시스템콜 인터페이스를 정의함
   - API (Application programming interface)
-- CISC (Compex Instruction Set Computer)
+- CISC (Complex Instruction Set Computer)
   - 복잡한 명령어 집합
   - 명령어의 수가 많음
   - 80년대 중반까지 사용 (x86, VAX)
