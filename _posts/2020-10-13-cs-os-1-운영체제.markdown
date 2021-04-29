@@ -48,7 +48,7 @@ comments: true
  - 일괄 처리(Batch Processing)
    - 작업 요청의 일정량 모아서 한번에 처리
    - 작업이 완전 종료될 때까지 기다려야 함
-   - 프로세서에 비해 입출력이 굉장히 늦기 때문에 idle 상태가 김 - `CPU Utilization`이 안좋음
+   - 프로세서에 비해 입출력이 굉장히 느리기 때문에 idle 상태가 김 - `CPU Utilization`이 안좋음
    - ex) 초기 Punch Card 처리 시스템
  - 시분할(Time Sharing)
    - 여러 작업을 수행할 때 컴퓨터 처리 능력을 일정한 시간 단위로 분할하여 사용
