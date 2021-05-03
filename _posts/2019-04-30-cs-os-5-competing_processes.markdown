@@ -52,8 +52,6 @@ comments: true
       - deadlock and stravation 가능
     - 장점?
       - 프로세스, 프로세서의 개수와 상관 없이 크리티컬 섹션 구현 가능
-      - 
-
 
 - compare-and-swap ? 
   - 특정 메모리의 값을 테스트하고, 참일 경우 다른 값으로 변경
