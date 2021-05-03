@@ -25,7 +25,7 @@ binary_semaphore s = 1, delay = 0;
 void producer()
 {
     while(true){
-        producer();
+        produce();
         semWaitB(s);
         append();
         n++;
