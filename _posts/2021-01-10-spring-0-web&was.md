@@ -8,7 +8,7 @@ tags : Spring
 ---
 
 
-### 웹 서버(Web ServeR)?
+### 웹 서버(Web Server)?
 - HTTP 기반으로 동작
 - 정적 리소스 제공 (html, css, js, image 등)
 - 기타 부가기능
