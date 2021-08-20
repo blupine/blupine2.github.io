@@ -26,7 +26,7 @@ tags : programmers
 #include <algorithm>
 using namespace std;
 
-int dir[4][2] = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+int dir[4][2] = { {0, 1}, {1, 0}, {0, -1}, {-1, 0} };
 
 vector<pair<int, int>> get_linked_land(vector<vector<int>> board, vector<vector<bool>> &visit, int row, int col, int tar) { 
     vector<pair<int, int>> points;
