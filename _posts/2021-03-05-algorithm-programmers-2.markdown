@@ -144,3 +144,131 @@ int solution(vector<vector<int>> board, int r, int c) {
     return _min;
 }
 {% endhighlight %}
+
+-------------------------------------------------------
+21.08.25 두 번째 풀이
+
+- `getCoast()`, `getNextPoint()` 효율 개선
+
+
+{% highlight c++ %}
+#include <string>
+#include <vector>
+#include <map>
+#include <queue>
+#include <cstdio>
+#include <algorithm>
+
+using namespace std;
+#define INBOUND(r, c) (r < 4 && r >= 0 && c < 4 && c >= 0)
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+const int dx[] = {-1, 1, 0, 0};
+const int dy[] = {0, 0, -1, 1};
+
+typedef struct Point {
+    int row, col, coast;
+    bool operator<(const Point &cmp) const {
+        return coast > cmp.coast;
+    }
+}Point;
+
+map<int, vector<pair<int,int>>> getCards(vector<vector<int>> board) {
+    map<int, vector<pair<int, int>>> cards;
+    for(int i = 0 ; i < board.size(); i++) {
+        for(int j = 0 ; j < board[i].size() ; j++) {
+            if(board[i][j]) {
+                cards[board[i][j]].push_back({i, j});
+            }
+        }
+    }
+    return cards;
+}
+
+pair<int, int> getNextPoint(vector<vector<int>> board, int row, int col, int dir, bool ctrl) {
+    int nr = row + dx[dir];
+    int nc = col + dy[dir];
+    if(!INBOUND(nr, nc))
+        return {row, col};
+    
+    if(ctrl) {
+        while(true) {
+            if(board[nr][nc] != 0) 
+                break;
+            int tr = nr + dx[dir];
+            int tc = nc + dy[dir];
+            if(!INBOUND(tr, tc))
+                break;
+            nr = tr;
+            nc = tc;
+        }
+    }
+    return {nr, nc};
+}
+
+int getCoast(vector<vector<int>> board, int row, int col, int drow, int dcol) {
+    priority_queue<Point> pq;
+    pq.push({row, col, 0});
+    vector<vector<int>> visit(4, vector<int>(4, 0));
+    visit[row][col] = 1;
+    while(!pq.empty()) {
+        Point top = pq.top(); pq.pop();
+        if(top.row == drow && top.col == dcol) 
+            return top.coast;
+        for(int i = 0 ; i < 8 ; i++) {
+            pair<int, int> next = getNextPoint(board, top.row, top.col, i % 4, (i / 4 ? false : true));
+            if(next.first == top.row && next.second == top.col) continue;
+            if(visit[next.first][next.second] != 0) continue;
+            visit[next.first][next.second] = 1;
+            Point np = {next.first, next.second, top.coast + 1};
+            pq.push(np);
+        }
+    }
+    return 0;
+}
+
+int answer = 0x7fffffff;
+map<int, vector<pair<int, int>>> cards;
+void solve(vector<vector<int>> &board, vector<int> &seq, Point cur, int depth) {
+    if(cur.coast >= answer) return;
+    if(depth >= seq.size()) {
+        answer = MIN(answer, cur.coast);
+        return;
+    }
+    
+    int card = seq[depth];
+    int fRow = cards[card][0].first, fCol = cards[card][0].second;
+    int sRow = cards[card][1].first, sCol = cards[card][1].second;
+    // cards[card].first 먼저 뒤집고 second 다음에 뒤집
+    int coast = 0;
+    coast = getCoast(board, cur.row, cur.col, fRow, fCol);
+    coast += 1; // first enter
+    coast += getCoast(board, fRow, fCol, sRow, sCol);
+    coast += 1; // second enter
+    board[fRow][fCol] = board[sRow][sCol] = 0;
+    solve(board, seq, {sRow, sCol, cur.coast + coast}, depth + 1);
+    
+    // 원상복구 후에 second 먼저 뒤집기
+    coast = 0;
+    board[fRow][fCol] = board[sRow][sCol] = card;
+    coast = getCoast(board, cur.row, cur.col, sRow, sCol);
+    coast += 1; // first enter
+    coast += getCoast(board, sRow, sCol, fRow, fCol);
+    coast += 1; // second enter
+    board[fRow][fCol] = board[sRow][sCol] = 0;
+    solve(board, seq, {fRow, fCol, cur.coast + coast}, depth + 1);  
+    
+    board[fRow][fCol] = board[sRow][sCol] = card; // 원상복구.. 꼭 해줘야 함..ㅜㅜ
+}
+
+int solution(vector<vector<int>> board, int r, int c) {
+    cards = getCards(board);
+    vector<int> keys;
+    for(auto iter = cards.begin(); iter != cards.end() ; iter++)  
+        keys.push_back(iter->first);
+    do {
+        vector<vector<int>> cp = board;
+        solve(cp, keys, {r, c, 0}, 0);
+    }while(next_permutation(keys.begin(), keys.end()));
+    return answer;
+}
+{% endhighlight %}
