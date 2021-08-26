@@ -2,7 +2,7 @@
 layout: post
 title:  "[2017 카카오코드 예선]보행자 천국"
 subtitle: ""
-date:   2021-08-22 17:37:55 +0900
+date:   2021-08-23 17:37:55 +0900
 categories: algorithm
 tags : programmers
 ---
