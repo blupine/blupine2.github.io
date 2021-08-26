@@ -9,3 +9,4 @@ gem "classifier-reborn"
 gem 'wdm', '>= 0.1.0'
 gem "kramdown-parser-gfm"
 gem "rexml", ">= 3.2.5"
+gem "addressable", ">= 2.8.0"
