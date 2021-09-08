@@ -49,7 +49,7 @@ int solution(int n, vector<vector<int>> results) {
     
     for(int i = 1; i <= n ; i++) {
         // 정점 i가 갈 수 있는 다른 노드의 수 = toIJ
-        // 정점 i로 갈 수 없는 다른 노드들의 수 = toJI
+        // 정점 i로 갈 수 있는 다른 노드들의 수 = toJI
         int toIJ = 0, toJI = 0;
         for(int j = 1; j <= n ; j++) {
             if(adj[i][j] != INF) toIJ++;
