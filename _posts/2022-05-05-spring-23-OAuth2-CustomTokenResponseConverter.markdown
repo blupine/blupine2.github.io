@@ -9,8 +9,11 @@ tags : Spring
 
 Spring 프로젝트에서 OAuth2.0 인스타그램 로그인을 구현하던 도중 생기는 문제
 
+- ![1]({{"assets/img/dev/spring/23/3.png" | absolute_url}})
 
-- ![1]({{"assets/img/dev/spring/25/1.png" | absolute_url}})
+예외 발생을 봐보면!
+
+- ![1]({{"assets/img/dev/spring/23/1.png" | absolute_url}})
 
 ```
 [invalid_token_response] An error occurred while attempting to retrieve the OAuth 2.0 Access Token Response: Error while extracting response for type [class org.springframework.security.oauth2.core.endpoint.OAuth2AccessTokenResponse] and content type [application/json;charset=utf-8]; nested exception is org.springframework.http.converter.HttpMessageNotReadableException: An error occurred reading the OAuth 2.0 Access Token Response: tokenType cannot be null; nested exception is java.lang.IllegalArgumentException: tokenType cannot be null
@@ -18,7 +21,7 @@ Spring 프로젝트에서 OAuth2.0 인스타그램 로그인을 구현하던 도
 
 tokenType이 null이 될 수 없고 해석되는데, 인스타그램은 AccessToken의 Type을 response에 포함해서 주지 않아서 발생하는 문제로 보인다. (Spring Security가 OAuth2AccessToken 인스턴스를 생성할 때 null 체크 및 예외 발생)
 
-- ![2]({{"assets/img/dev/spring/25/2.png" | absolute_url}})
+- ![2]({{"assets/img/dev/spring/23/2.png" | absolute_url}})
 
 *OAuth2AccessToken.java, 해당 인스턴스를 생성할 때 tokenType이 null이면 예외가 발생한다.*
 
